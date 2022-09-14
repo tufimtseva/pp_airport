@@ -40,7 +40,7 @@ According to my variant the project uses
 
 5. Run project using gunicorn
    ```
-   gunicorn -w 4 airport
+   gunicorn -w 4 app:app
    ```
    
 
