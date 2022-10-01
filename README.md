@@ -54,11 +54,10 @@ According to my variant the project uses
 
 Написати сервіс для підтримки процесу реєстрації пасажирів та багажу в аеропорті. Є 4 типи користувачів : пасажир 
  (role_passenger), checkin менеджер (role_security_mgr), security менеджер (role_security_mgr), та менеджер рейсу 
- (role_flight_mgr). User має можливість купування білету на рейс шляхом створення сутності Booking а також оновлення 
- даних у Booking. Checkin менеджер проводить реєстрацію пасажира та Baggage на рейс, security менеджер перевіряє 
- пасажірів на пронесення на борт заборонених речей; менеджер рейсу відповідає за відкриття/закриття boarding gate та 
- перевіряє, чи всі пасажири здійснили посадку. Результатом роботи системи є звіт про наповненість рейсу пасажирами та 
- деталі про кожного пасажира та його Baggage. 
+ (role_flight_mgr). User має можливість купування білету на рейс(Flight) шляхом створення сутності Booking а також оновлення 
+ даних у Booking. Checkin менеджер проводить реєстрацію пасажира та Baggage(шляхом створення сутності Baggage) на рейс, security менеджер перевіряє 
+ пасажірів на пронесення на борт заборонених речей; менеджер рейсу відповідає за відкриття/закриття boarding gate,
+ перевіряє, чи всі пасажири здійснили посадку та може оновлювати офіційний статус рейсу(посадка, в повітрі, висадка). Результатом роботи системи є звіт про наповненість рейсу пасажирами та деталі про кожного пасажира(User) та його Baggage. 
 
 Ролі, які підтримує система для авторизації :
 ## Roles:
@@ -70,37 +69,43 @@ According to my variant the project uses
 
 ===============
 ## Сустність:
-- операція над нею//роль користувача, який можк викнувати операцію
+- операція над нею // роль користувача, який можк викнувати операцію
 
 ## User
-- add // role_user
-- login// role_user
-- logout// role_user
-- updateDetails//role_user
-- getDetails//role_user, role_checkin_mgr, role_security_mgr, role_flight_mgr
-- getAllUsersForFlight // role_flight_mgr
-- checkIn // role_checkin_mgr
-- securityCheck // role_security_mgr
-- cancel//role_checkin_mgr, role_security_mgr
+- add // role_all
+- login // role_user
+- logout // role_user
+- update // role_user
+- getDetails // role_user, role_checkin_mgr, role_security_mgr, role_flight_mgr
+
 ## Baggage
 - add // role_checkin_mgr
 - getDetails // role_checkin_mgr, role_security_mgr
-- checkIn // role_checkin_mgr
-- cancel//role_checkin_mgr, role_security_mgr
 
 ## Flight
-- getAll //role_all
+- getAll // role_all
 - getDetails // role_all
 - getPublicStatus // role_all
+- setPublicStatus // role_flight_mgr
 - openGate // role_flight_mgr
 - closeGate // role_flight_mgr
+- getAllUsersForFlight // role_flight_mgr
+- getAllBaggageForFlight // role_flight_mgr
 
 ## Booking
-- add//role_user
-- setBaggage//role_user
-- getDetails//role_user, role_checkin_mgr, role_security_mgr, role_flight_mgr
-- cancel//role_user
+- add // role_user
+- update // role_user
+- getDetails // role_user, role_checkin_mgr, role_security_mgr, role_flight_mgr
+- cancel // role_user, role_checkin_mgr, role_security_mgr
 
- ## Manager
- - login//role_checkin_mgr, role_security_mgr, role_flight_mgr
- - logout//role_checkin_mgr, role_security_mgr, role_flight_mgr
+## Manager
+- login // role_checkin_mgr, role_security_mgr, role_flight_mgr
+- logout // role_checkin_mgr, role_security_mgr, role_flight_mgr
+- getDetails // role_checkin_mgr, role_security_mgr, role_flight_mgr
+
+## Boarding check
+- add // role_checkin_mgr, role_security_mgr
+- getDetails // role_checkin_mgr, role_security_mgr, role_flight_mgr
+- getAllForBooking // role_checkin_mgr, role_security_mgr, role_flight_mgr
+
+
