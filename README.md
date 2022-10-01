@@ -97,7 +97,7 @@ According to my variant the project uses
 - update // role_user
 - getDetails // role_user, role_checkin_mgr, role_security_mgr, role_flight_mgr
 - getAllBoardingChecks // role_checkin_mgr, role_security_mgr, role_flight_mgr
-- cancel // role_user, role_checkin_mgr, role_security_mgr
+- delete // role_user
 
 ## Manager
 - login // role_checkin_mgr, role_security_mgr, role_flight_mgr
