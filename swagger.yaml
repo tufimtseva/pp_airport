@@ -1,0 +1,849 @@
+openapi: "3.0.2"
+info:
+  title: API Title
+  version: "1.0"
+servers:
+  - url: http://127.0.0.1:5000
+tags:
+  - name: User
+    description: Operations with user
+  - name: Baggage
+    description: Operations with baggage
+  - name: Flight
+    description: Operations with flight
+  - name: Booking
+    description: Operations with booking
+  - name: Manager
+    description: Operations with manager
+  - name: Boarding check
+    description: Operations with bording check
+    
+
+    
+paths:
+  /user:
+    post:
+      tags:
+        - User
+      summary: Create user
+      description: Add new client or manager account
+      requestBody:
+        description: New client or manager info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: New user was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '409':
+          description: The user already exists
+        '412':
+          description: Invalid input data
+          
+  /user/login:
+    post:
+      tags:
+        - User
+      security:
+        - basicAuth: []
+      summary: Log user into the system
+      description: Create a new session for an existing user
+      responses:
+        '201':
+          description: Session successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '412':
+          description: Invalid input data
+        '401':
+          description: User not authenticated
+          
+  /user/{id}:
+    get:
+      tags:
+        - User
+      security:
+        - cookieAuth_user: []
+        - cookieAuth_flight_mgr: []
+        - cookieAuth_checkin_mgr: []
+        - cookieAuth_security_mgr: []
+      summary: Get user info
+      description: Get all info about an existing user by id
+      parameters:
+        - name: id
+          in: path
+          description: id of user to be returned
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: User was successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Invalid user id, user not found
+    put:
+      tags:
+        - User
+      security:
+        - cookieAuth_user: []
+      summary: Update an existing user
+      description: Update personal information by id
+      parameters:
+        - name: id
+          in: path
+          description: id of user to be updated
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: Updated personal info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: The user data was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Invalid user id, user not found
+        '412':
+          description: Invalid input data
+  /user/logout:
+    delete:
+      tags:
+        - User
+      security:
+        - cookieAuth_user: []
+      summary: Log user out of the system
+      description: End session for an existing user
+      responses:
+        '200':
+          description: Session successfully ended
+
+
+  /manager/{id}:
+    get:
+      tags:
+        - Manager
+      security:
+        - cookieAuth_flight_mgr: []
+        - cookieAuth_checkin_mgr: []
+        - cookieAuth_security_mgr: []
+      summary: Get details of manager
+      description: Get all info about an existing manager by id
+      parameters:
+        - name: id
+          in: path
+          description: id of manager to be returned
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Manager details were successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manager'
+        '404':
+          description: Invalid manager id, user not found
+
+  /manager/login:
+    post:
+      tags:
+        - Manager
+      security:
+        - basicAuth: []
+      summary: Log manager into the system
+      description: Create a new session for an existing manager
+      responses:
+        '201':
+          description: Session successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manager'
+        '412':
+          description: Invalid input data
+        '401':
+          description: Manager not authenticated          
+          
+  /manager/logout:
+    delete:
+      tags:
+        - Manager
+      security:
+        - cookieAuth_flight_mgr: []
+        - cookieAuth_checkin_mgr: []
+        - cookieAuth_security_mgr: []
+      summary: Log manager out of the system
+      description: End session for an existing manager
+      responses:
+        '200':
+          description: Session successfully ended  
+    
+  /baggage:
+    post:
+      tags:
+        - Baggage
+      security:
+        - cookieAuth_checkin_mgr: []
+      summary: Create baggage
+      description: Add baggage
+      requestBody:
+        description: Baggage info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Baggage'
+        required: true
+      responses:
+        '201':
+          description: New baggage was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Baggage'
+        '409':
+          description: Baggage already exists
+        '412':
+          description: Invalid input data  
+
+  /baggage/{id}:
+    get:
+      tags:
+        - Baggage
+      security:
+        - cookieAuth_checkin_mgr: []
+        - cookieAuth_security_mgr: []
+      summary: Get baggage info
+      description: Get all info about an existing baggage by id
+      parameters:
+        - name: id
+          in: path
+          description: id of baggage to be returned
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Baggage was successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Baggage'
+        '404':
+          description: Invalid baggage id, baggage not found
+          
+  /booking:
+    post:
+      tags:
+        - Booking
+      security:
+        - cookieAuth_user: []
+      summary: Create new booking
+      description: Create booking 
+      requestBody:
+        description: New booking
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+        required: true
+      responses:
+        '201':
+          description: New booking was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '412':
+          description: Invalid input data    
+          
+  /booking/{id}:
+    put:
+      tags:
+        - Booking
+      security:
+        - cookieAuth_user: []
+      summary: Update an existing booking
+      description: Update booking information by id
+      parameters:
+        - name: id
+          in: path
+          description: id of booking to be updated
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: Updated booking info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: The booking data was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Invalid booking id, booking not found
+        '412':
+          description: Invalid input data
+    delete:
+      tags:
+        - Booking
+      security:
+        - cookieAuth_user: []
+      summary: Delete an existing booking
+      description: Delete an existing booking by id
+      parameters:
+        - name: id
+          in: path
+          description: id of booking to be deleted
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: The booking was successfully deleted
+        '404':
+          description: Invalid booking id, booking not found
+    get:
+      tags:
+        - Booking
+      security:
+        - cookieAuth_user: []
+        - cookieAuth_flight_mgr: []
+        - cookieAuth_checkin_mgr: []
+        - cookieAuth_security_mgr: []
+      summary: Get details of booking
+      description: Get all info about an existing booking by id
+      parameters:
+        - name: id
+          in: path
+          description: id of booking to be returned
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Booking was successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: Invalid booking id, booking is not found          
+
+  /boarding_check:
+    post:
+      tags:
+        - Boarding check
+      security:
+        - cookieAuth_checkin_mgr: []
+        - cookieAuth_security_mgr: []
+      summary: Add boarding check
+      description: Add new boarding check 
+      requestBody:
+        description: New boarding check
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Boarding_check'
+        required: true
+      responses:
+        '201':
+          description: New boarding check was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Boarding_check'
+        '409':
+          description: The boarding already exists
+        '412':
+          description: Invalid input data
+          
+  /boarding_check/{id}:
+    get:
+      tags:
+        - Boarding check
+      security:
+        - cookieAuth_flight_mgr: []
+        - cookieAuth_checkin_mgr: []
+        - cookieAuth_security_mgr: []
+      summary: Get details of boarding
+      description: Get all info about an existing boarding by id
+      parameters:
+        - name: id
+          in: path
+          description: id of boarding check to be returned
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Boarding was successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Boarding_check'
+        '404':
+          description: Invalid boarding id, boarding not found          
+
+
+  /boarding_check/getAll:
+    get:
+      tags:
+        - Boarding check
+      security:
+        - cookieAuth_flight_mgr: []
+        - cookieAuth_checkin_mgr: []
+        - cookieAuth_security_mgr: []
+      summary: Get all bookings
+      description: Get the list of all bookings and their details
+      responses:
+        '200':
+          description: List of all bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Boarding_check'   
+             
+  /flight/getAll:
+    get:
+      tags:
+        - Flight
+      summary: Get all flights
+      description: Get the list of all flights and their details
+      responses:
+        '200':
+          description: List of all flights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flight' 
+             
+                  
+  /flight/{id}:
+    get:
+      tags:
+        - Flight
+      summary: Get details of flight
+      description: Get all info about an existing flight by id
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to be returned
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Flight details were successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+        '404':
+          description: Invalid flight id, flight not found   
+          
+  /flight/{id}/getPublicStatus:
+    get:
+      tags:
+        - Flight
+      summary: Get Status of flight
+      description: Get info about status of an existing flight by id
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to be returned
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Status was successfully returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+        '404':
+          description: Invalid flight id, flight not found   
+ 
+  /flight/{id}/setPublicStatus:
+    put:
+      tags:
+        - Flight
+      security:
+        - cookieAuth_flight_mgr: []
+      summary: Update status of flight
+      description: The progress of  updating public status
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to be given new status
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: New flight status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Flight status  was successfully updated
+        '404':
+          description: Invalid Flight id, Flight not found
+        '412':
+          description: Invalid input data          
+          
+  /flight/{id}/openGate:
+    put:
+      tags:
+        - Flight
+      security:
+        - cookieAuth_flight_mgr: []
+      summary: Update status of gate
+      description: The progress of updating gate status
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to be given new status of gate
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: New flight status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Gate status was successfully updated
+        '404':
+          description: Invalid Flight id, Flight not found
+        '412':
+          description: Invalid input data          
+                    
+  /flight/{id}/closeGate:
+    put:
+      tags:
+        - Flight
+      security:
+        - cookieAuth_flight_mgr: []
+      summary: Update status of gate
+      description: The progress of updating gate status of gate
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to be given new status
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: New flight status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Gate status was successfully updated
+        '404':
+          description: Invalid Flight id, Flight not found
+        '412':
+          description: Invalid input data          
+                    
+  /flight/{id}/getAllUsers:
+    get:
+      tags:
+        - Flight
+      security:
+        - cookieAuth_flight_mgr: []
+      summary: Get users from flight
+      description: Get all users from flight
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to get all users
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: List of all flight's users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: Invalid flight id, flight not found   
+              
+  /flight/{id}/getAllBaggages:
+    get:
+      tags:
+        - Flight
+      security:
+        - cookieAuth_flight_mgr: []
+      summary: Get baggages from flight
+      description: Get all baggages from flight
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to get all baggages
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: List of all flight's baggages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Baggage'
+        '404':
+          description: Invalid flight id, flight not found                             
+          
+          
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: Mmmm
+        surname:
+          type: string
+          example: King
+        country:
+          type: string
+          example: USA
+        date_of_birth:
+          type: string
+          format: date
+          example: 2017-10-11
+        passport_number:
+          type: integer
+          format: int64
+          readOnly: true
+          example: 136544
+        email:
+          type: string
+          example: m.anderson@gmail.com
+        password:
+          type: string
+          format: password 
+          example: dvknmwpkd254v
+    
+    Manager:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          example: 13
+        name:
+          type: string
+          example: Mary
+        surname:
+          type: string
+          example: Lvk
+        email:
+          type: string
+          example: m.anderson@gmail.com
+        password:
+          type: string
+          format: password
+          example: Uoihasohao5236
+        role:
+          type: integer
+          format: date
+          example: 1
+
+    Flight:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          example: 10
+        number:
+          type: string
+          example: LH5563
+        depature_city:
+          type: string
+          example: Lviv
+        arrival_city:
+          type: string
+          example: London
+        departure_time:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        arrival_time:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        status:
+          type: integer
+          format: date
+          example: 1    
+    
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          example: 10
+        reservation_time:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        baggage_count:
+          type: integer
+          example: 2
+        flight_id:
+          $ref: '#/components/schemas/Flight'
+        user_id:
+          $ref: '#/components/schemas/User'
+    
+    Baggage:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          example: 12
+        weight:
+          type: number
+          format: float
+          example: 22.4
+          
+    Boarding_check:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          example: 12
+        type:
+          type: integer
+          example: 1          
+        result:
+          type: integer
+          example: 2            
+        manager_id:
+          $ref: '#/components/schemas/Manager'          
+        booking_id:
+          $ref: '#/components/schemas/Booking'          
+
+
+  securitySchemes:
+  
+    basicAuth:
+      type: http
+      scheme: basic
+      
+    cookieAuth_checkin_mgr:
+      description: Client authentication
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+    cookieAuth_security_mgr:
+      description: Manager authentication
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+    cookieAuth_flight_mgr:
+      description: Manager authentication
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+    cookieAuth_user:
+      description: Manager authentication
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+
+#  securitySchemes:
+#    manager_auth:
+#      type: oauth2
+#      flows:
+#        implicit:
+#          authorizationUrl: https://airport/oauth/authorize
+#          scopes:
+#            write: write or update items for flight, baggage, booking, boarding_check
+#            read: read details about passengers
+#   api_key:
+#    type: apiKey
+#    name: api_key
+#    in: header
