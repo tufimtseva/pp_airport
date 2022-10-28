@@ -19,8 +19,33 @@ According to my variant the project uses
       ```
       SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk MACOSX_DEPLOYMENT_TARGET=12.3 pyenv install 3.8.13
       ```
-   2. On Windows...
+   2. On Windows
    
+      Open PowerShell as administrator and paste code below:
+      ```PowerShell
+      Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" -OutFile "./install-pyenv-win.ps1"; &"./install-pyenv-win.ps1"
+      ```
+      1. Add PYENV, PYENV_HOME and PYENV_ROOT to your Environment Variables:
+         ```PowerShell
+         [System.Environment]::SetEnvironmentVariable('PYENV',$env:USERPROFILE + "\.pyenv\pyenv-win\","User")
+
+         [System.Environment]::SetEnvironmentVariable('PYENV_ROOT',$env:USERPROFILE + "\.pyenv\pyenv-win\","User")
+
+         [System.Environment]::SetEnvironmentVariable('PYENV_HOME',$env:USERPROFILE + "\.pyenv\pyenv-win\","User")
+         ```
+      2. Add the following paths to your USER PATH variable in order to access the pyenv command:
+         ```PowerShell
+         [System.Environment]::SetEnvironmentVariable('path', $env:USERPROFILE + "\.pyenv\pyenv-win\bin;" + $env:USERPROFILE + "\.pyenv\pyenv-win\shims;" + [System.Environment]::GetEnvironmentVariable('path', "User"),"User")
+         ```
+         Installation is done.
+         Now install python 3.8.10 version using code below:
+         ```PowerShell
+         pyenv install 3.8.10
+         ```
+         Installation will take a lot of time, so don't worry. 
+         Don't forget to add python.exe path to PATHs in System. 
+         Copy python.exe file and create python3.8.10.exe file.
+
 2. Create virtual environment 
     ```
    python3.8 -m venv ~/.venv/pp_airport-env
@@ -35,19 +60,32 @@ According to my variant the project uses
    ```
 4. Install necessary modules by running 
    ```
-   pip install requrements.txt
+   pip install requirements.txt
    ```
 
 5. Run project using gunicorn
    ```
    gunicorn -w 4 app:app
    ```
-   
 
-
-
-
-
+# Setup Database and Migrations to our project
+1. Don`t forget to update requirements.txt opening project.
+   ```
+   pip install requirements.txt
+   ```
+2. After installing the requirements we need change the sqlalchemy.url in the alembic.ini file.
+   ```
+   sqlalchemy.url = postgresql://postgres:your_password@localhost:5432/Airport
+   ```
+3. Import db from models file to env.py
+   ```
+   from database.models import db
+   ```
+4. Change target_metadata = None to target_metadata = db.metadata
+5. Now you are able to migrate db models using next command
+   ```
+   alembic upgrade head
+   ```
 
 
 # pp_airport
