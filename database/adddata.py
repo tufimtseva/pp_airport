@@ -16,9 +16,9 @@ with app.app_context():
                        email="m.queen@gmail.com", password="gkgkgkgkg",
                        role=2)
     flight1 = Flight(number="3580", departure_city="Lviv", arrival_city="London",
-                     departure_time="2022-11-13 19:30:00.016547", arrival_time="2022-11-13 23:45:00.016547")
+                     departure_time="2022-11-13 19:30:00.016547", arrival_time="2022-11-13 23:45:00.016547", status=1)
     flight2 = Flight(number="2487", departure_city="Berlin", arrival_city="Barcelona",
-                     departure_time="2023-11-13 10:00:00.016547", arrival_time="2023-11-13 13:30:00.016547")
+                     departure_time="2023-11-13 10:00:00.016547", arrival_time="2023-11-13 13:30:00.016547", status=2)
 
     db.session.add(client1)
     db.session.add(client2)
