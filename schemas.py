@@ -8,9 +8,13 @@ class ClientShema(Schema):
     country = fields.Str()
     date_of_birth = fields.Date()
     passport_number = fields.Str()
-    email = fields.Email()
-    password = fields.Str()
+    # password = generate_password_hash(fields.String(validate=validate.Length(min=8)))
+    email = fields.Email(validate=validate.Email())
+    password = fields.Function(
+        deserialize=lambda qqq: generate_password_hash(qqq),
+        load_only=True,
 
+    )
 
 # subclass Field
 # JSON -> obj = deserialization // hashing
@@ -63,6 +67,7 @@ class FlightSchema(Schema):
     arrival_city = fields.Str()
     departure_time = fields.DateTime()
     arrival_time = fields.DateTime()
+    status = fields.Integer()
 
 class ManagerSchema(Schema):
 
@@ -76,3 +81,12 @@ class ManagerSchema(Schema):
 
     )
     role = fields.Integer()
+
+class BoardingCheckSchema(Schema):
+    __tablename__ = 'boarding_check'
+
+    id = fields.Integer()
+    type = fields.Integer()
+    result = fields.Integer()
+    manager_id = fields.Integer()
+    booking_id = fields.Integer()

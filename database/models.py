@@ -24,6 +24,9 @@ class Client(db.Model):
     def __repr__(self):
         return "<User: '{}' '{}', email: '{}'>" \
             .format(self.name, self.surname, self.email)
+    def as_dict(self):
+        return {p.name: getattr(self, p.name) for p in self.__table__.columns}
+
 
 
 class Manager(db.Model):
@@ -55,6 +58,10 @@ class Flight(db.Model):
         return "<Flight  '{}' - '{}' on '{}' - '{}'>" \
             .format(self.departure_city, self.arrival_city, self.departure_time, self.arrival_time)
 
+    def as_dict(self):
+        return {p.name: getattr(self, p.name) for p in self.__table__.columns}
+
+
 
 class Booking(db.Model):
     __tablename__ = 'booking'
@@ -82,6 +89,8 @@ class BoardingCheck(db.Model):
     def __repr__(self):
         return "<Boarding result '{}' for booking id: '{}' >" \
             .format(self.result, self.booking_id)
+    def as_dict(self):
+        return {p.name: getattr(self, p.name) for p in self.__table__.columns}
 
 
 class Baggage(db.Model):
@@ -94,6 +103,9 @@ class Baggage(db.Model):
     def __repr__(self):
         return "<Baggage weight: '{}' >" \
             .format(self.weight)
+
+    def as_dict(self):
+        return {p.name: getattr(self, p.name) for p in self.__table__.columns}
 
 
 @app.route('/')
