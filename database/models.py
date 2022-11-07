@@ -50,7 +50,7 @@ class Flight(db.Model):
     arrival_city = db.Column(db.String(50), nullable=False)
     departure_time = db.Column(db.DateTime(timezone=True))
     arrival_time = db.Column(db.DateTime(timezone=True))
-    status = db.Column(db.Boolean, nullable=False)
+    status = db.Column(db.Integer, nullable=False)
     def __repr__(self):
         return "<Flight  '{}' - '{}' on '{}' - '{}'>" \
             .format(self.departure_city, self.arrival_city, self.departure_time, self.arrival_time)
