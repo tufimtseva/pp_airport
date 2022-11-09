@@ -43,26 +43,25 @@ paths:
                 $ref: '#/components/schemas/User'
         '409':
           description: The user already exists
-        '412':
+        '400':
           description: Invalid input data
-          
+
   /user/login:
     post:
       tags:
         - User
-      security:
-        - basicAuth: []
+#      security:
+#        - basicAuth: []
       summary: Log user into the system
       description: Create a new session for an existing user
       responses:
-        '201':
+        '200':
           description: Session successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '412':
-          description: Invalid input data
+
         '401':
           description: User not authenticated
           
@@ -124,7 +123,9 @@ paths:
                 $ref: '#/components/schemas/User'
         '404':
           description: Invalid user id, user not found
-        '412':
+        '409':
+          description: The user already exists
+        '400':
           description: Invalid input data
   /user/logout:
     delete:
@@ -176,14 +177,12 @@ paths:
       summary: Log manager into the system
       description: Create a new session for an existing manager
       responses:
-        '201':
+        '200':
           description: Session successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Manager'
-        '412':
-          description: Invalid input data
         '401':
           description: Manager not authenticated          
           
@@ -223,10 +222,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Baggage'
+        '400':
+          description: Invalid input data
         '409':
-          description: Baggage already exists
-        '412':
-          description: Invalid input data  
+          description: There is no booking with such id
 
   /baggage/{id}:
     get:
@@ -277,8 +276,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Booking'
-        '412':
-          description: Invalid input data    
+        '400':
+          description: Invalid input data
+        '409':
+          description: There is no client or flight with such id
           
   /booking/{id}:
     put:
@@ -301,17 +302,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/Booking'
       responses:
         '200':
           description: The booking data was successfully updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Booking'
         '404':
           description: Invalid booking id, booking not found
-        '412':
+        '400':
           description: Invalid input data
     delete:
       tags:
@@ -333,6 +334,8 @@ paths:
           description: The booking was successfully deleted
         '404':
           description: Invalid booking id, booking not found
+        '409':
+          description: Cannot delete booking, the baggage or boarding check already exists
     get:
       tags:
         - Booking
@@ -361,7 +364,25 @@ paths:
         '404':
           description: Invalid booking id, booking is not found          
 
-  /boarding_check:
+  /boarding-check:
+    get:
+      tags:
+        - Boarding check
+      security:
+        - cookieAuth_flight_mgr: []
+        - cookieAuth_checkin_mgr: []
+        - cookieAuth_security_mgr: []
+      summary: Get all bookings
+      description: Get the list of all bookings and their details
+      responses:
+        '200':
+          description: List of all bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Boarding_check'
     post:
       tags:
         - Boarding check
@@ -384,12 +405,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Boarding_check'
-        '409':
-          description: The boarding already exists
-        '412':
+        '400':
           description: Invalid input data
+        '409':
+          description: There is no booking or manager with corresponding id
           
-  /boarding_check/{id}:
+  /boarding-check/{id}:
     get:
       tags:
         - Boarding check
@@ -417,28 +438,7 @@ paths:
         '404':
           description: Invalid boarding id, boarding not found          
 
-
-  /boarding_check/getAll:
-    get:
-      tags:
-        - Boarding check
-      security:
-        - cookieAuth_flight_mgr: []
-        - cookieAuth_checkin_mgr: []
-        - cookieAuth_security_mgr: []
-      summary: Get all bookings
-      description: Get the list of all bookings and their details
-      responses:
-        '200':
-          description: List of all bookings
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Boarding_check'   
-             
-  /flight/getAll:
+  /flight:
     get:
       tags:
         - Flight
@@ -479,7 +479,7 @@ paths:
         '404':
           description: Invalid flight id, flight not found   
           
-  /flight/{id}/getPublicStatus:
+  /flight/{id}/public-status:
     get:
       tags:
         - Flight
@@ -499,11 +499,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Flight'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 1
         '404':
           description: Invalid flight id, flight not found   
- 
-  /flight/{id}/setPublicStatus:
     put:
       tags:
         - Flight
@@ -534,78 +536,10 @@ paths:
           description: Flight status  was successfully updated
         '404':
           description: Invalid Flight id, Flight not found
-        '412':
+        '400':
           description: Invalid input data          
           
-  /flight/{id}/openGate:
-    put:
-      tags:
-        - Flight
-      security:
-        - cookieAuth_flight_mgr: []
-      summary: Update status of gate
-      description: The progress of updating gate status
-      parameters:
-        - name: id
-          in: path
-          description: id of flight to be given new status of gate
-          required: true
-          schema:
-            type: integer
-            example: 1
-      requestBody:
-        description: New flight status
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  type: integer
-                  example: 1
-      responses:
-        '200':
-          description: Gate status was successfully updated
-        '404':
-          description: Invalid Flight id, Flight not found
-        '412':
-          description: Invalid input data          
-                    
-  /flight/{id}/closeGate:
-    put:
-      tags:
-        - Flight
-      security:
-        - cookieAuth_flight_mgr: []
-      summary: Update status of gate
-      description: The progress of updating gate status of gate
-      parameters:
-        - name: id
-          in: path
-          description: id of flight to be given new status
-          required: true
-          schema:
-            type: integer
-            example: 1
-      requestBody:
-        description: New flight status
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  type: integer
-                  example: 1
-      responses:
-        '200':
-          description: Gate status was successfully updated
-        '404':
-          description: Invalid Flight id, Flight not found
-        '412':
-          description: Invalid input data          
-                    
-  /flight/{id}/getAllUsers:
+  /flight/{id}/user:
     get:
       tags:
         - Flight
@@ -633,7 +567,7 @@ paths:
         '404':
           description: Invalid flight id, flight not found   
               
-  /flight/{id}/getAllBaggages:
+  /flight/{id}/baggage:
     get:
       tags:
         - Flight
@@ -686,14 +620,13 @@ components:
           format: date
           example: 2017-10-11
         passport_number:
-          type: integer
-          format: int64
-          readOnly: true
+          type: string
           example: 136544
         email:
           type: string
           example: m.anderson@gmail.com
         password:
+          writeOnly: true
           type: string
           format: password 
           example: dvknmwpkd254v
@@ -770,9 +703,11 @@ components:
           type: integer
           example: 2
         flight_id:
-          $ref: '#/components/schemas/Flight'
+          type: integer
+          example: 1
         user_id:
-          $ref: '#/components/schemas/User'
+          type: integer
+          example: 1
     
     Baggage:
       type: object
@@ -786,6 +721,10 @@ components:
           type: number
           format: float
           example: 22.4
+        booking_id:
+          type: integer
+          format: int64
+          example: 12
           
     Boarding_check:
       type: object
@@ -802,9 +741,11 @@ components:
           type: integer
           example: 2            
         manager_id:
-          $ref: '#/components/schemas/Manager'          
+          type: integer
+          example: 1
         booking_id:
-          $ref: '#/components/schemas/Booking'          
+          type: integer
+          example: 1
 
 
   securitySchemes:

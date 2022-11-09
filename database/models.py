@@ -3,9 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 # from sqlalchemy.sql import func
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:12345@localhost:5432/Airport"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:leisuregurube@localhost:5432/Airport"
 
 db = SQLAlchemy(app)
+
 
 
 class Client(db.Model):
@@ -23,6 +24,9 @@ class Client(db.Model):
     def __repr__(self):
         return "<User: '{}' '{}', email: '{}'>" \
             .format(self.name, self.surname, self.email)
+    def as_dict(self):
+        return {p.name: getattr(self, p.name) for p in self.__table__.columns}
+
 
 
 class Manager(db.Model):
@@ -49,10 +53,14 @@ class Flight(db.Model):
     arrival_city = db.Column(db.String(50), nullable=False)
     departure_time = db.Column(db.DateTime(timezone=True))
     arrival_time = db.Column(db.DateTime(timezone=True))
-
+    status = db.Column(db.Integer, nullable=False)
     def __repr__(self):
         return "<Flight  '{}' - '{}' on '{}' - '{}'>" \
             .format(self.departure_city, self.arrival_city, self.departure_time, self.arrival_time)
+
+    def as_dict(self):
+        return {p.name: getattr(self, p.name) for p in self.__table__.columns}
+
 
 
 class Booking(db.Model):
@@ -81,6 +89,8 @@ class BoardingCheck(db.Model):
     def __repr__(self):
         return "<Boarding result '{}' for booking id: '{}' >" \
             .format(self.result, self.booking_id)
+    def as_dict(self):
+        return {p.name: getattr(self, p.name) for p in self.__table__.columns}
 
 
 class Baggage(db.Model):
@@ -93,6 +103,8 @@ class Baggage(db.Model):
     def __repr__(self):
         return "<Baggage weight: '{}' >" \
             .format(self.weight)
+    def as_dict(self):
+        return {p.name: getattr(self, p.name) for p in self.__table__.columns}
 
 
 @app.route('/')
@@ -106,4 +118,4 @@ def hello_world(val):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
