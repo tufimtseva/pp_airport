@@ -103,7 +103,6 @@ class Baggage(db.Model):
     def __repr__(self):
         return "<Baggage weight: '{}' >" \
             .format(self.weight)
-
     def as_dict(self):
         return {p.name: getattr(self, p.name) for p in self.__table__.columns}
 

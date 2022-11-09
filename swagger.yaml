@@ -223,7 +223,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Baggage'
         '400':
-          description: Invalid input data  
+          description: Invalid input data
+        '409':
+          description: There is no booking with such id
 
   /baggage/{id}:
     get:
@@ -275,7 +277,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Booking'
         '400':
-          description: Invalid input data    
+          description: Invalid input data
+        '409':
+          description: There is no client or flight with such id
           
   /booking/{id}:
     put:
@@ -330,6 +334,8 @@ paths:
           description: The booking was successfully deleted
         '404':
           description: Invalid booking id, booking not found
+        '409':
+          description: Cannot delete booking, the baggage or boarding check already exists
     get:
       tags:
         - Booking
@@ -401,6 +407,8 @@ paths:
                 $ref: '#/components/schemas/Boarding_check'
         '400':
           description: Invalid input data
+        '409':
+          description: There is no booking or manager with corresponding id
           
   /boarding-check/{id}:
     get:
@@ -713,7 +721,7 @@ components:
           type: number
           format: float
           example: 22.4
-        Booking_id:
+        booking_id:
           type: integer
           format: int64
           example: 12
