@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from sqlalchemy.dialects.postgresql import psycopg2
 from sqlalchemy.exc import IntegrityError
 
@@ -9,6 +9,9 @@ from utils import *
 from marshmallow import Schema, fields, validate, ValidationError
 from flask_httpauth import HTTPBasicAuth
 from flask_sqlalchemy import SQLAlchemy
+from flask_httpauth import HTTPBasicAuth
+
+from werkzeug.security import check_password_hash
 
 app.debug = True
 import json
@@ -17,11 +20,36 @@ CORS(app)
 
 authBasic = HTTPBasicAuth()
 
+manager_emails = ['manager1@gmail.com', 'manager2@gmail.com']
+
+
 
 @authBasic.verify_password
 def verify_password(email, password):
     print("email: " + email + ", password: " + password)
-    return email
+    user = Client.query.filter_by(email=email).first()
+    if user is None:
+        # return "There is no user with such email, please register first", 401
+        return None
+    if check_password_hash(user.password, password):
+        return user
+    else:
+        return None
+
+        # return {"email : ": client.email}, 200
+    # check user.password == password
+    # user = Client.query.filter_by(email=user).first()
+
+
+@authBasic.error_handler
+def auth_error(status):
+    msg = ""
+    if status == 401:
+        msg = "wrong username or password"
+    if status == 403:
+        msg = "Access denied"
+    return {"msg": msg, "code": status}, status
+
 
 
 my_blueprint = Blueprint('my_blueprint', __name__)
@@ -37,7 +65,7 @@ def error_handler(func):
             else:
                 res = func(**kwargs)
             #data = res.json()
-            if res[1] >= 400:
+            if res.__class__ != Response and res[1] >= 400:
                 return {"code": res[1],"msg":res[0]}, res[1]
             else:
                 return res
@@ -52,6 +80,11 @@ def error_handler(func):
     return wrapper;
 
 
+@authBasic.get_user_roles
+def get_user_roles(user):
+    return user.role
+
+
 @app.route('/user', methods=['POST'])
 @error_handler
 def create_client():
@@ -62,52 +95,63 @@ def create_client():
 
 @app.route('/user/<id>', methods=['PUT'])
 @error_handler
+@authBasic.login_required(role=['client', 'manager'])
 def update_client(id):
-    # try:
+    current_user = authBasic.current_user()
+    role = current_user.role
+    if role == 'client' and current_user.id != int(id):
+        return "Access denied", 403
+
     client_data = ClientToUpdateShema().load(request.json)
     client = Client.query.filter_by(id=id).first()
     if client is None:
         return "Client not found", 404
     update_entity(client, **client_data)
     return jsonify(ClientToUpdateShema().dump(client)), 200
-    # except IntegrityError as err:
-    #     print(err.args)
-    #     return {"msg": err.args}, 409
-    # except ValidationError as err:
-    #     print(err.messages)
-    #     return {"msg": err.messages}, 400
+
 
 
 @app.route('/user/login', methods=['POST'])
 @error_handler
-@authBasic.login_required()
+@authBasic.login_required(role='client')
 def login():
-    client = Client.query.filter_by(email=authBasic.current_user()).first()
-    if client is None:
-        return "There is no user with such email, please register first", 401
-    return jsonify(ClientShema().dump(client)), 200
+    # auth = request.authorization
+    # if not auth or not auth.username or not auth.password:
+    #     return "There is no username or login  provided", 401
+    # client = Client.query.filter_by(email=authBasic.current_user()).first()
+
+    return jsonify(ClientShema().dump(authBasic.current_user())), 200
 
 
-@app.route('/user/logout', methods=['DELETE'])
-@error_handler
-@authBasic.login_required()
-def logout():
-    return "", 200
+
+# @app.route('/user/logout', methods=['DELETE'])
+# @error_handler
+# @authBasic.login_required()
+# def logout():
+#     return "", 200
 
 
 @app.route('/user/<id>', methods=['GET'])
+@authBasic.login_required(role=['client', 'manager'])
 @error_handler
 def get_user(id):
+    current_user = authBasic.current_user()
+    role = current_user.role
+    if role == 'client' and current_user.id != int(id):
+        return "Access denied", 403
     client = Client.query.filter_by(id=id).first()
     if client is None:
         return "There is no user with such id", 404
+
     return jsonify(ClientShema().dump(client)), 200
 
 
 @app.route('/baggage', methods=['POST'])
 @error_handler
+@authBasic.login_required(role='manager')
 def create_baggage():
-    # try:
+        # current_email = authBasic.current_user()
+        # manager = Manager.query.filter_by(id=id).first()
         baggage_data = BaggageSchema().load(request.json)
         booking_id = baggage_data['booking_id']
         booking = Booking.query.filter_by(id=booking_id).first()
@@ -122,6 +166,7 @@ def create_baggage():
 
 @app.route('/baggage/<id>', methods=['GET'])
 @error_handler
+@authBasic.login_required(role='manager')
 def get_baggage(id):
     baggage = Baggage.query.filter_by(id=id).first()
     if baggage is None:
@@ -131,14 +176,17 @@ def get_baggage(id):
 
 @app.route('/booking', methods=['POST'])
 @error_handler
+@authBasic.login_required(role='client')
 def create_booking():
-    # try:
+        current_user = authBasic.current_user()
         booking_data = BookingSchema().load(request.json)
         client_id = booking_data['client_id']
         flight_id = booking_data['flight_id']
         client = Client.query.filter_by(id=client_id).first()
         if client is None:
             return "There is no client with such id", 409
+        if client.id != current_user.id:
+            return "Access denied", 403
         flight = Flight.query.filter_by(id=flight_id).first()
 
         if flight is None:
@@ -152,9 +200,15 @@ def create_booking():
 
 @app.route('/booking/<id>', methods=['PUT'])
 @error_handler
+@authBasic.login_required(role='client')
 def update_booking(id):
-    # try:
+        current_user = authBasic.current_user()
         booking_data = BookingToUpdateSchema().load(request.json)
+        client_id = booking_data['client_id']
+        booking = Booking.query.filter_by(client_id=client_id).first()
+        if current_user.id != client_id or client_id != booking.client_id:
+            return "Access denied", 403
+
         booking = Booking.query.filter_by(id=id).first()
         if booking is None:
             return "There is no booking with such id", 404
@@ -166,7 +220,12 @@ def update_booking(id):
 
 @app.route('/booking/<id>', methods=['GET'])
 @error_handler
+@authBasic.login_required(role=['client', 'manager'])
 def get_booking(id):
+    current_user = authBasic.current_user()
+    role = current_user.role
+    if role == 'client' and current_user.id != int(id):
+        return "Access denied", 403
     booking = Booking.query.filter_by(id=id).first()
     if booking is None:
         return "There is no booking with such id", 404
@@ -175,8 +234,15 @@ def get_booking(id):
 
 @app.route('/booking/<id>', methods=['DELETE'])
 @error_handler
+@authBasic.login_required(role=['client', 'manager'])
 def delete_booking(id):
+    current_user = authBasic.current_user()
     booking = Booking.query.filter_by(id=id).first()
+    client_id = booking.client_id
+    role = current_user.role
+    if role == 'client' and current_user.id != client_id:
+        return "Access denied", 403
+
     baggage = Baggage.query.filter_by(booking_id=id).first()
     boarding_check = BoardingCheck.query.filter_by(booking_id=id).first()
     if baggage is None and boarding_check is None:
@@ -188,38 +254,37 @@ def delete_booking(id):
         return "Cannot delete booking, the baggage or boarding check already exists", 409
 
 
-@app.route('/manager/login', methods=['POST'])
-@error_handler
-@authBasic.login_required()
-def login_manager():
-    manager = Manager.query.filter_by(email=authBasic.current_user()).first()
-    if manager is None:
-        return "There is no manager with such email", 401
-    return jsonify(ManagerSchema().dump(manager)), 200
+# @app.route('/manager/login', methods=['POST'])
+# @error_handler
+# @authBasic.login_required()
+# def login_manager():
+#     manager = Manager.query.filter_by(email=authBasic.current_user()).first()
+#     if manager is None:
+#         return "There is no manager with such email", 401
+#     return jsonify(ManagerSchema().dump(manager)), 200
 
 
-@app.route('/manager/logout', methods=['DELETE'])
-@error_handler
-@authBasic.login_required()
-def logout_manager():
-    return "", 200
+# @app.route('/manager/logout', methods=['DELETE'])
+# @error_handler
+# @authBasic.login_required()
+# def logout_manager():
+#     return "", 200
 
 
-@app.route('/manager/<id>', methods=['GET'])
-@error_handler
-def get_manager(id):
-    manager = Manager.query.filter_by(id=id).first()
-    if manager is None:
-        return "There is no manager with such email", 404
-    return jsonify(ClientShema().dump(manager)), 200
+# @app.route('/manager/<id>', methods=['GET'])
+# @error_handler
+# def get_manager(id):
+#     manager = Manager.query.filter_by(id=id).first()
+#     if manager is None:
+#         return "There is no manager with such email", 404
+#     return jsonify(ClientShema().dump(manager)), 200
 
 
 @app.route('/flight/<id>/public-status', methods=['PUT'])
 @error_handler
+@authBasic.login_required(role='manager')
 def update_flight_status(id):
-    # try:
-        # booking_data = request.get_json()
-        # status = request.form.get('status', type=int)
+
         flight_data = FlightToUpdateSchema().load(request.json)
         flight = Flight.query.filter_by(id=id).first()
         if flight is None:
@@ -258,6 +323,7 @@ def get_flight_status(id):
 
 @app.route('/flight/<id>/user', methods=['GET'])
 @error_handler
+@authBasic.login_required(role='manager')
 def get_users_for_flight(id):
     flight = Flight.query.filter_by(id=id).first()
     if flight is None:
@@ -272,6 +338,7 @@ def get_users_for_flight(id):
 
 @app.route('/flight/<id>/baggage', methods=['GET'])
 @error_handler
+@authBasic.login_required(role='manager')
 def get_baggage_for_flight(id):
     flight = Flight.query.filter_by(id=id).first()
     if flight is None:
@@ -287,17 +354,21 @@ def get_baggage_for_flight(id):
 
 @app.route('/boarding-check', methods=['POST'])
 @error_handler
+@authBasic.login_required(role='manager')
 def create_boarding_check():
 
-    # try:
+    mgr = authBasic.current_user()
     boarding_check_data = BoardingCheckSchema().load(request.json)
     manager_id = boarding_check_data['manager_id']
     booking_id = boarding_check_data['booking_id']
-    manager = Manager.query.filter_by(id=manager_id).first()
+    manager = Client.query.filter_by(id=manager_id).first()
     booking = Booking.query.filter_by(id=booking_id).first()
-
-    if booking is None or manager is None:
-        return "There is no booking or manager with corresponding id", 409
+    if booking is None:
+        return "There is no booking with corresponding id", 409
+    if manager is None :
+        return "There is no manager with corresponding id", 409
+    if manager.id != mgr.id:
+        return "Access denied", 403
     boarding_check = create_entity(BoardingCheck, **boarding_check_data)
     return jsonify(BoardingCheckSchema().dump(boarding_check)), 200
     # except ValidationError as err:
@@ -307,12 +378,14 @@ def create_boarding_check():
 
 @app.route('/boarding-check', methods=['GET'])
 @error_handler
+@authBasic.login_required(role='manager')
 def get_all_boarding_checks():
     return json.dumps([p.as_dict() for p in BoardingCheck.query.all()], indent=4, sort_keys=True, default=str), 200
 
 
 @app.route('/boarding-check/<id>', methods=['GET'])
 @error_handler
+@authBasic.login_required(role='manager')
 def get_boarding_check(id):
     boarding_check = BoardingCheck.query.filter_by(id=id).first()
     if boarding_check is None:
