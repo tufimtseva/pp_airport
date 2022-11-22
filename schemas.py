@@ -12,8 +12,8 @@ class ClientShema(Schema):
     password = fields.Function(
         deserialize=lambda qqq: generate_password_hash(qqq),
         load_only=True, required=True
-
     )
+    role = fields.Str(validate=validate.OneOf(["client", "manager"]), required=True)
 
 class ClientToUpdateShema(Schema):
 
@@ -29,6 +29,7 @@ class ClientToUpdateShema(Schema):
         load_only=True
 
     )
+    role = fields.Str(validate=validate.OneOf(["client", "manager"]))
 
 
 class BaggageSchema(Schema):

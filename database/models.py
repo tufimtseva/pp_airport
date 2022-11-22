@@ -20,6 +20,7 @@ class Client(db.Model):
     passport_number = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(250))
+    role = db.Column(db.String(250))
 
     def __repr__(self):
         return "<User: '{}' '{}', email: '{}'>" \
@@ -27,21 +28,23 @@ class Client(db.Model):
     def as_dict(self):
         return {p.name: getattr(self, p.name) for p in self.__table__.columns}
 
+    def get_roles(self):
+        return "client"
 
 
-class Manager(db.Model):
-    __tablename__ = 'manager'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    surname = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(250))
-    role = db.Column(db.Integer, nullable=False)
-
-    def __repr__(self):
-        return "<Manager: '{}' '{}', email: '{}', role: '{}'>" \
-            .format(self.name, self.surname, self.email, self.role)
+# class Manager(db.Model):
+#     __tablename__ = 'manager'
+#
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(50), nullable=False)
+#     surname = db.Column(db.String(50), nullable=False)
+#     email = db.Column(db.String(100), unique=True, nullable=False)
+#     password = db.Column(db.String(250))
+#     role = db.Column(db.Integer, nullable=False)
+#
+#     def __repr__(self):
+#         return "<Manager: '{}' '{}', email: '{}', role: '{}'>" \
+#             .format(self.name, self.surname, self.email, self.role)
 
 
 class Flight(db.Model):
@@ -83,7 +86,7 @@ class BoardingCheck(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer, nullable=False)
     result = db.Column(db.Integer, nullable=False)
-    manager_id = db.Column(db.Integer, db.ForeignKey('manager.id'))
+    manager_id = db.Column(db.Integer, db.ForeignKey('client.id'))
     booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'))
 
     def __repr__(self):

@@ -1,4 +1,4 @@
-from database.models import app, db, Client, Manager, Flight, Booking, BoardingCheck, Baggage
+from database.models import app, db, Client, Flight, Booking, BoardingCheck, Baggage
 
 
 def create_entity(model_class, **kwargs):

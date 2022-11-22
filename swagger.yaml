@@ -13,8 +13,8 @@ tags:
     description: Operations with flight
   - name: Booking
     description: Operations with booking
-  - name: Manager
-    description: Operations with manager
+#  - name: Manager
+#    description: Operations with manager
   - name: Boarding check
     description: Operations with bording check
     
@@ -72,8 +72,8 @@ paths:
       security:
         - cookieAuth_user: []
         - cookieAuth_flight_mgr: []
-        - cookieAuth_checkin_mgr: []
-        - cookieAuth_security_mgr: []
+#        - cookieAuth_checkin_mgr: []
+#        - cookieAuth_security_mgr: []
       summary: Get user info
       description: Get all info about an existing user by id
       parameters:
@@ -127,85 +127,86 @@ paths:
           description: The user already exists
         '400':
           description: Invalid input data
-  /user/logout:
-    delete:
-      tags:
-        - User
-      security:
-        - cookieAuth_user: []
-      summary: Log user out of the system
-      description: End session for an existing user
-      responses:
-        '200':
-          description: Session successfully ended
+#  /user/logout:
+#    delete:
+#      tags:
+#        - User
+#      security:
+#        - cookieAuth_user: []
+#      summary: Log user out of the system
+#      description: End session for an existing user
+#      responses:
+#        '200':
+#          description: Session successfully ended
 
 
-  /manager/{id}:
-    get:
-      tags:
-        - Manager
-      security:
-        - cookieAuth_flight_mgr: []
-        - cookieAuth_checkin_mgr: []
-        - cookieAuth_security_mgr: []
-      summary: Get details of manager
-      description: Get all info about an existing manager by id
-      parameters:
-        - name: id
-          in: path
-          description: id of manager to be returned
-          required: true
-          schema:
-            type: integer
-            example: 1
-      responses:
-        '200':
-          description: Manager details were successfully returned
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Manager'
-        '404':
-          description: Invalid manager id, user not found
-
-  /manager/login:
-    post:
-      tags:
-        - Manager
-      security:
-        - basicAuth: []
-      summary: Log manager into the system
-      description: Create a new session for an existing manager
-      responses:
-        '200':
-          description: Session successfully created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Manager'
-        '401':
-          description: Manager not authenticated          
-          
-  /manager/logout:
-    delete:
-      tags:
-        - Manager
-      security:
-        - cookieAuth_flight_mgr: []
-        - cookieAuth_checkin_mgr: []
-        - cookieAuth_security_mgr: []
-      summary: Log manager out of the system
-      description: End session for an existing manager
-      responses:
-        '200':
-          description: Session successfully ended  
+#  /manager/{id}:
+#    get:
+#      tags:
+#        - Manager
+#      security:
+#        - cookieAuth_flight_mgr: []
+#        - cookieAuth_checkin_mgr: []
+#        - cookieAuth_security_mgr: []
+#      summary: Get details of manager
+#      description: Get all info about an existing manager by id
+#      parameters:
+#        - name: id
+#          in: path
+#          description: id of manager to be returned
+#          required: true
+#          schema:
+#            type: integer
+#            example: 1
+#      responses:
+#        '200':
+#          description: Manager details were successfully returned
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Manager'
+#        '404':
+#          description: Invalid manager id, user not found
+#
+#  /manager/login:
+#    post:
+#      tags:
+#        - Manager
+#      security:
+#        - basicAuth: []
+#      summary: Log manager into the system
+#      description: Create a new session for an existing manager
+#      responses:
+#        '200':
+#          description: Session successfully created
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Manager'
+#        '401':
+#          description: Manager not authenticated
+#
+#  /manager/logout:
+#    delete:
+#      tags:
+#        - Manager
+#      security:
+#        - cookieAuth_flight_mgr: []
+#        - cookieAuth_checkin_mgr: []
+#        - cookieAuth_security_mgr: []
+#      summary: Log manager out of the system
+#      description: End session for an existing manager
+#      responses:
+#        '200':
+#          description: Session successfully ended
     
   /baggage:
     post:
       tags:
         - Baggage
       security:
-        - cookieAuth_checkin_mgr: []
+#        - cookieAuth_checkin_mgr: []
+        - cookieAuth_flight_mgr: []
       summary: Create baggage
       description: Add baggage
       requestBody:
@@ -232,8 +233,9 @@ paths:
       tags:
         - Baggage
       security:
-        - cookieAuth_checkin_mgr: []
-        - cookieAuth_security_mgr: []
+#        - cookieAuth_checkin_mgr: []
+#        - cookieAuth_security_mgr: []
+         - cookieAuth_flight_mgr: []
       summary: Get baggage info
       description: Get all info about an existing baggage by id
       parameters:
@@ -342,8 +344,8 @@ paths:
       security:
         - cookieAuth_user: []
         - cookieAuth_flight_mgr: []
-        - cookieAuth_checkin_mgr: []
-        - cookieAuth_security_mgr: []
+#        - cookieAuth_checkin_mgr: []
+#        - cookieAuth_security_mgr: []
       summary: Get details of booking
       description: Get all info about an existing booking by id
       parameters:
@@ -370,8 +372,8 @@ paths:
         - Boarding check
       security:
         - cookieAuth_flight_mgr: []
-        - cookieAuth_checkin_mgr: []
-        - cookieAuth_security_mgr: []
+#        - cookieAuth_checkin_mgr: []
+#        - cookieAuth_security_mgr: []
       summary: Get all bookings
       description: Get the list of all bookings and their details
       responses:
@@ -387,7 +389,7 @@ paths:
       tags:
         - Boarding check
       security:
-        - cookieAuth_checkin_mgr: []
+#        - cookieAuth_checkin_mgr: []
         - cookieAuth_security_mgr: []
       summary: Add boarding check
       description: Add new boarding check 
@@ -416,8 +418,8 @@ paths:
         - Boarding check
       security:
         - cookieAuth_flight_mgr: []
-        - cookieAuth_checkin_mgr: []
-        - cookieAuth_security_mgr: []
+#        - cookieAuth_checkin_mgr: []
+#        - cookieAuth_security_mgr: []
       summary: Get details of boarding
       description: Get all info about an existing boarding by id
       parameters:
@@ -754,16 +756,16 @@ components:
       type: http
       scheme: basic
       
-    cookieAuth_checkin_mgr:
-      description: Client authentication
-      type: apiKey
-      in: cookie
-      name: JSESSIONID
-    cookieAuth_security_mgr:
-      description: Manager authentication
-      type: apiKey
-      in: cookie
-      name: JSESSIONID
+#    cookieAuth_checkin_mgr:
+#      description: Client authentication
+#      type: apiKey
+#      in: cookie
+#      name: JSESSIONID
+#    cookieAuth_security_mgr:
+#      description: Manager authentication
+#      type: apiKey
+#      in: cookie
+#      name: JSESSIONID
     cookieAuth_flight_mgr:
       description: Manager authentication
       type: apiKey
