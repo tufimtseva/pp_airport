@@ -205,13 +205,12 @@ def update_booking(id):
         current_user = authBasic.current_user()
         booking_data = BookingToUpdateSchema().load(request.json)
         client_id = booking_data['client_id']
-        booking = Booking.query.filter_by(client_id=client_id).first()
-        if current_user.id != client_id or client_id != booking.client_id:
-            return "Access denied", 403
-
+       # bookings = Booking.query.filter_by(client_id=current_user.id).all()
         booking = Booking.query.filter_by(id=id).first()
         if booking is None:
             return "There is no booking with such id", 404
+        if current_user.id != client_id or booking.client_id != current_user.id :
+            return "Access denied", 403
         update_entity(booking, **booking_data)
         return jsonify(BookingToUpdateSchema().dump(booking)), 200
     # except Exception as error:
