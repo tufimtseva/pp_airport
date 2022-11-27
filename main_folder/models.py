@@ -1,23 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import *
-# # from sqlalchemy.sql import func
-from sqlalchemy.orm import Session, sessionmaker, scoped_session, declarative_base, backref
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:leisuregurube@localhost:5432/Airport"
 
 db = SQLAlchemy(app)
 
-engine = create_engine("postgresql://postgres:leisuregurube@localhost:5432/Airport")
-SessionFactory = sessionmaker(bind=engine)
-Session = scoped_session(SessionFactory)
 
-Base = declarative_base()
-Base.query = db.session.query_property()
-
-
-class Client(Base):
+class Client(db.Model):
     __tablename__ = 'client'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -56,7 +47,7 @@ class Client(Base):
 #             .format(self.name, self.surname, self.email, self.role)
 
 
-class Flight(Base):
+class Flight(db.Model):
     __tablename__ = 'flight'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -75,7 +66,7 @@ class Flight(Base):
         return {p.name: getattr(self, p.name) for p in self.__table__.columns}
 
 
-class Booking(Base):
+class Booking(db.Model):
     __tablename__ = 'booking'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -89,7 +80,7 @@ class Booking(Base):
     #         .format(self.client_id)
 
 
-class BoardingCheck(Base):
+class BoardingCheck(db.Model):
     __tablename__ = 'boarding_check'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -106,7 +97,7 @@ class BoardingCheck(Base):
         return {p.name: getattr(self, p.name) for p in self.__table__.columns}
 
 
-class Baggage(Base):
+class Baggage(db.Model):
     __tablename__ = 'baggage'
 
     id = db.Column(db.Integer, primary_key=True)

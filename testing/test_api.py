@@ -10,8 +10,8 @@ import base64
 
 class TestApi(TestCase):
     def create_tables(self):
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
+        db.drop_all()
+        db.create_all()
 
     def setUp(self):
         super().setUp()
@@ -27,7 +27,7 @@ class TestApi(TestCase):
         }
 
     def close_session(self):
-        Session.close()
+        db.session.close()
 
     def tearDown(self):
         self.close_session()
@@ -160,8 +160,8 @@ class TestAuthentication(TestApi):
         client_data = ClientSchema().load(self.client1_true)
         # client_to_add = create_entity(Client, **client_data)
         client_to_add = Client(**client_data)
-        Session.add(client_to_add)
-        Session.commit()
+        db.session.add(client_to_add)
+        db.session.commit()
         resp = self.client.post(url_for("login_user"), headers=self.get_basic_client_headers())
         self.assertEqual(200, resp.status_code)
         self.assertEqual(resp.json["email"], "client11@gmail.com")
@@ -169,9 +169,6 @@ class TestAuthentication(TestApi):
     def test_authenticate_fail_email(self):
         client_data = ClientSchema().load(self.client_fail_email)
         client_to_add = create_entity(Client, **client_data)
-        # client_to_add = Client(**client_data)
-        # Session.add(client_to_add)
-        # Session.commit()
         headers = self.get_basic_client_headers()
         headers["Content-Type"] = "application/json"
         resp = self.client.post(url_for("login_user"), headers=headers)

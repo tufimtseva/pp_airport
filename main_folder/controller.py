@@ -21,9 +21,8 @@ manager_emails = ['manager1@gmail.com', 'manager2@gmail.com']
 def verify_password(email, password):
     # print("email: " + email + ", password: " + password)
     user = Client.query.filter_by(email=email).first()
-    session = Session()
-    # persons = session.query(Client)
-    user_to_verify = session.query(Client).filter(Client.email == email).first()
+    user_to_verify = Client.query.filter_by(email=email).first()
+
     if user_to_verify is None:
         # return "There is no user with such email, please register first", 401
         return None

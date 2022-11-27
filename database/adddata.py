@@ -1,8 +1,6 @@
-# from flask_sqlalchemy.session import Session
 from main_folder.models import app, db, Client, Flight, Booking, BoardingCheck, Baggage
 from werkzeug.security import generate_password_hash
 
-# session = Session()
 with app.app_context():
     client1 = Client(name="Khrystyna", surname="Dolynska", country="Ukraine",
                      date_of_birth="2004-03-27", passport_number="FN3378",
