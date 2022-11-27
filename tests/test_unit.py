@@ -1,7 +1,8 @@
 from unittest import TestCase
-from api.schemas import *
 from marshmallow import ValidationError
 import datetime
+
+from api.schemas import *
 
 
 class TestPersonSchema(TestCase):

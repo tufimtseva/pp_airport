@@ -1,5 +1,7 @@
-from model.models import app, db, Client, Flight, Booking, BoardingCheck, Baggage
 from werkzeug.security import generate_password_hash
+
+from model.models import *
+from init import app
 
 with app.app_context():
     client1 = Client(name="Khrystyna", surname="Dolynska", country="Ukraine",

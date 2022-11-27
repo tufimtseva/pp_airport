@@ -1,16 +1,15 @@
 from flask import jsonify, request
 from sqlalchemy.exc import IntegrityError
-
-from main_folder.models import *
-from schemas import *
-from flask_cors import CORS
-from utils import *
 from marshmallow import ValidationError
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash
 import json
 
-CORS(app)
+from init import app
+from model.models import *
+from api.schemas import *
+from api.utils import *
+
 authBasic = HTTPBasicAuth()
 
 manager_emails = ['manager1@gmail.com', 'manager2@gmail.com']

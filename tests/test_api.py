@@ -1,11 +1,12 @@
 import json
+from flask_testing import TestCase
+from flask import url_for
+import base64
+
+from api.controller import *
 from model.models import *
 from api.schemas import *
 from api.utils import create_entity
-from flask_testing import TestCase
-from flask import url_for
-from api.controller import app
-import base64
 
 
 class TestApi(TestCase):
