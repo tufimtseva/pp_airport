@@ -5,11 +5,11 @@ from sqlalchemy import *
 from sqlalchemy.orm import Session, sessionmaker, scoped_session, declarative_base, backref
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:12345@localhost:5432/Airport"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:leisuregurube@localhost:5432/Airport"
 
 db = SQLAlchemy(app)
 
-engine = create_engine("postgresql://postgres:12345@localhost:5432/Airport")
+engine = create_engine("postgresql://postgres:leisuregurube@localhost:5432/Airport")
 SessionFactory = sessionmaker(bind=engine)
 Session = scoped_session(SessionFactory)
 
