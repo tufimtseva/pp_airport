@@ -1,5 +1,5 @@
 # from flask_sqlalchemy.session import Session
-from models import app, db, Client, Flight, Booking, BoardingCheck, Baggage
+from main_folder.models import app, db, Client, Flight, Booking, BoardingCheck, Baggage
 from werkzeug.security import generate_password_hash
 
 # session = Session()
