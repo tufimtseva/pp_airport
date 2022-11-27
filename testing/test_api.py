@@ -251,6 +251,53 @@ class TestAuthentication(TestApi):
         resp = self.client.get(url_for("get_user", id=2), headers=self.get_basic_client_headers())
         self.assertEqual(403, resp.status_code)
 
+    def test_delete_user(self):
+        client_data = ClientSchema().load(self.client1_true)
+        client_to_add = create_entity(Client, **client_data)
+        flight_data = FlightSchema().load(self.flight1_true)
+        flight_to_add = create_entity(Flight, **flight_data)
+        booking_data = BookingSchema().load(self.booking1_true)
+        booking_to_add = create_entity(Booking, **booking_data)
+        baggage_data = BaggageSchema().load(self.baggage1_true)
+        baggage_to_add = create_entity(Baggage, **baggage_data)
+        boarding_check_data = BoardingCheckSchema().load(self.boarding_check1_true)
+        boarding_check_to_add = create_entity(BoardingCheck, **boarding_check_data)
+        resp = self.client.delete(url_for("delete_user", id=client_to_add.id),
+                                  headers=self.get_basic_client_headers())
+        self.assertEqual(200, resp.status_code)
+
+    def test_delete_user_access_denied(self):
+        client_data = ClientSchema().load(self.client1_true)
+        client_to_add = create_entity(Client, **client_data)
+        client_data = ClientSchema().load(self.client2_true)
+        client_to_add2 = create_entity(Client, **client_data)
+        flight_data = FlightSchema().load(self.flight1_true)
+        flight_to_add = create_entity(Flight, **flight_data)
+        booking_data = BookingSchema().load(self.booking1_true)
+        booking_to_add = create_entity(Booking, **booking_data)
+        baggage_data = BaggageSchema().load(self.baggage1_true)
+        baggage_to_add = create_entity(Baggage, **baggage_data)
+        boarding_check_data = BoardingCheckSchema().load(self.boarding_check1_true)
+        boarding_check_to_add = create_entity(BoardingCheck, **boarding_check_data)
+        resp = self.client.delete(url_for("delete_user", id=client_to_add2.id),
+                                  headers=self.get_basic_client_headers())
+        self.assertEqual(403, resp.status_code)
+
+    def test_delete_user_not_found(self):
+        client_data = ClientSchema().load(self.manager1_true)
+        client_to_add = create_entity(Client, **client_data)
+        flight_data = FlightSchema().load(self.flight1_true)
+        flight_to_add = create_entity(Flight, **flight_data)
+        booking_data = BookingSchema().load(self.booking1_true)
+        booking_to_add = create_entity(Booking, **booking_data)
+        baggage_data = BaggageSchema().load(self.baggage1_true)
+        baggage_to_add = create_entity(Baggage, **baggage_data)
+        boarding_check_data = BoardingCheckSchema().load(self.boarding_check1_true)
+        boarding_check_to_add = create_entity(BoardingCheck, **boarding_check_data)
+        resp = self.client.delete(url_for("delete_user", id=5),
+                                  headers=self.get_basic_manager_headers())
+        self.assertEqual(404, resp.status_code)
+
     def test_create_baggage(self):
         payload = json.dumps(
             self.baggage1_true
@@ -425,11 +472,6 @@ class TestAuthentication(TestApi):
         booking_data = BookingSchema().load(self.booking1_true)
         booking_to_add = create_entity(Booking, **booking_data)
 
-        payload = json.dumps(
-            self.booking1_true
-        )
-        headers = self.get_basic_client_headers()
-        headers["Content-Type"] = "application/json"
         resp = self.client.get(url_for("get_booking", id=booking_to_add.id),
                                headers=self.get_basic_client_headers())
         self.assertEqual(403, resp.status_code)
@@ -442,9 +484,7 @@ class TestAuthentication(TestApi):
         booking_data = BookingSchema().load(self.booking1_true)
         booking_to_add = create_entity(Booking, **booking_data)
 
-        headers = self.get_basic_client_headers()
-        headers["Content-Type"] = "application/json"
-        resp = self.client.get(url_for("delete_booking", id=booking_to_add.id),
+        resp = self.client.delete(url_for("delete_booking", id=booking_to_add.id),
                                headers=self.get_basic_client_headers())
         self.assertEqual(200, resp.status_code)
 
@@ -457,8 +497,8 @@ class TestAuthentication(TestApi):
         # booking_to_add = create_entity(Booking, **booking_data)
 
         headers = self.get_basic_client_headers()
-        headers["Content-Type"] = "application/json"
-        resp = self.client.get(url_for("delete_booking", id=client_to_add.id),
+
+        resp = self.client.delete(url_for("delete_booking", id=1),
                                headers=self.get_basic_client_headers())
         self.assertEqual(404, resp.status_code)
 
@@ -505,59 +545,32 @@ class TestAuthentication(TestApi):
         self.assertEqual(200, resp.status_code)
 
     def test_get_flight_status(self):
-        client_data = ClientSchema().load(self.manager1_true)
-        client_to_add = create_entity(Client, **client_data)
         flight_data = FlightSchema().load(self.flight1_true)
         flight_to_add = create_entity(Flight, **flight_data)
 
-        payload = json.dumps(
-            self.flight1_true
-        )
-        headers = self.get_basic_manager_headers()
-        headers["Content-Type"] = "application/json"
-        resp = self.client.put(url_for("get_flight_status", id=flight_to_add.id), headers=headers, data=payload)
+        resp = self.client.get(url_for("get_flight_status", id=flight_to_add.id))
         self.assertEqual(200, resp.status_code)
 
     def test_get_flight_status_fail(self):
-        client_data = ClientSchema().load(self.manager1_true)
-        client_to_add = create_entity(Client, **client_data)
-
-        payload = json.dumps(
-            self.flight1_true
-        )
-        headers = self.get_basic_manager_headers()
-        headers["Content-Type"] = "application/json"
-        resp = self.client.put(url_for("get_flight_status", id=1), headers=headers, data=payload)
+        resp = self.client.get(url_for("get_flight_status", id=1))
         self.assertEqual(404, resp.status_code)
         self.assertEqual({'code': 404, 'msg': 'There is no flight with such id'}, resp.json)
 
     def test_get_flight(self):
-        client_data = ClientSchema().load(self.manager1_true)
-        client_to_add = create_entity(Client, **client_data)
         flight_data = FlightSchema().load(self.flight1_true)
         flight_to_add = create_entity(Flight, **flight_data)
 
-        resp = self.client.get(url_for("get_flight", id=flight_to_add.id),
-                               headers=self.get_basic_manager_headers())
+        resp = self.client.get(url_for("get_flight", id=flight_to_add.id))
         self.assertEqual(200, resp.status_code)
 
     def test_get_flight_no_flight(self):
-        client_data = ClientSchema().load(self.client1_true)
-        client_to_add = create_entity(Client, **client_data)
-        headers = self.get_basic_client_headers()
-        headers["Content-Type"] = "application/json"
-        resp = self.client.get(url_for("get_flight", id=1),
-                               headers=self.get_basic_manager_headers())
+        resp = self.client.get(url_for("get_flight", id=1))
         self.assertEqual(404, resp.status_code)
 
     def test_get_all_flights(self):
-        client_data = ClientSchema().load(self.manager1_true)
-        client_to_add = create_entity(Client, **client_data)
         flight_data = FlightSchema().load(self.flight1_true)
         flight_to_add = create_entity(Flight, **flight_data)
-
-        resp = self.client.get(url_for("get_all_flights"),
-                               headers=self.get_basic_manager_headers())
+        resp = self.client.get(url_for("get_all_flights"))
         self.assertEqual(200, resp.status_code)
 
     def test_get_users_for_flight(self):

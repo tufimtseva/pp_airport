@@ -136,6 +136,37 @@ def get_user(id):
 
     return jsonify(ClientSchema().dump(client)), 200
 
+@app.route('/user/<id>', methods=['DELETE'])
+@authBasic.login_required(role=['client', 'manager'])
+@error_handler
+def delete_user(id):
+    current_user = authBasic.current_user()
+    role = current_user.role
+    if role == 'client' and current_user.id != int(id):
+        return "Access denied", 403
+    user_to_delete = Client.query.filter_by(id=id).first()
+    if user_to_delete is None:
+        return "There is no user with such id", 404
+    bookings_to_delete = Booking.query.filter_by(client_id=id).all()
+    if bookings_to_delete != []:
+        # baggage_to_delete = []
+        # boarding_checks_to_delete = []
+        for booking in bookings_to_delete:
+            baggage_to_delete = Baggage.query.filter_by(booking_id=booking.id).all()
+            if baggage_to_delete != []:
+                for baggage in baggage_to_delete:
+                    delete_entity(baggage)
+            boarding_checks_to_delete = BoardingCheck.query.filter_by(booking_id=booking.id).all()
+            if boarding_checks_to_delete != []:
+                for boarding_check in boarding_checks_to_delete:
+                    delete_entity(boarding_check)
+
+        for booking in bookings_to_delete:
+            delete_entity(booking)
+    delete_entity(user_to_delete)
+    return "", 200
+
+
 
 @app.route('/baggage', methods=['POST'])
 @error_handler
@@ -226,6 +257,8 @@ def get_booking(id):
 def delete_booking(id):
     current_user = authBasic.current_user()
     booking = Booking.query.filter_by(id=id).first()
+    if booking is None:
+        return "There is no booking with such id", 404
     client_id = booking.client_id
     role = current_user.role
     if role == 'client' and current_user.id != client_id:
@@ -234,8 +267,6 @@ def delete_booking(id):
     baggage = Baggage.query.filter_by(booking_id=id).first()
     boarding_check = BoardingCheck.query.filter_by(booking_id=id).first()
     if baggage is None and boarding_check is None:
-        if booking is None:
-            return "There is no booking with such id", 404
         delete_entity(booking)
         return "", 200
     else:
