@@ -1,8 +1,8 @@
-from database.models import app, db, Client, Flight, Booking, BoardingCheck, Baggage
+from main_folder.models import Session
 
 
 def create_entity(model_class, **kwargs):
-    session = db.session
+    session = Session()
     entity = model_class(**kwargs)
     session.add(entity)
     session.commit()
@@ -10,13 +10,14 @@ def create_entity(model_class, **kwargs):
 
 
 def update_entity(entity, **kwargs):
-    session = db.session
+    session = Session()
     for key, value in kwargs.items():
         setattr(entity, key, value)
     session.commit()
     return entity
 
+
 def delete_entity(entity):
-    session = db.session
+    session = Session()
     session.delete(entity)
     session.commit()

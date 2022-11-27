@@ -1,6 +1,8 @@
 from marshmallow import Schema, fields, validate, validates
 from werkzeug.security import generate_password_hash, check_password_hash
-class ClientShema(Schema):
+
+
+class ClientSchema(Schema):
 
     id = fields.Integer(validate=validate.Range(min=0))
     name = fields.Str(required=True)
@@ -15,7 +17,8 @@ class ClientShema(Schema):
     )
     role = fields.Str(validate=validate.OneOf(["client", "manager"]), required=True)
 
-class ClientToUpdateShema(Schema):
+
+class ClientToUpdateSchema(Schema):
 
     id = fields.Integer(validate=validate.Range(min=0))
     name = fields.Str()
@@ -37,12 +40,14 @@ class BaggageSchema(Schema):
     weight = fields.Float(validate=validate.Range(min=0, max=20), required=True)
     booking_id = fields.Integer(validate=validate.Range(min=0), required=True)
 
+
 class BookingSchema(Schema):
     id = fields.Integer(validate=validate.Range(min=0))
     reservation_time = fields.DateTime(required=True)
     baggage_count = fields.Integer(validate=validate.Range(min=0), required=True)
     flight_id = fields.Integer(validate=validate.Range(min=0), required=True)
     client_id = fields.Integer(validate=validate.Range(min=0), required=True)
+
 
 class BookingToUpdateSchema(Schema):
     id = fields.Integer(validate=validate.Range(min=0))
@@ -51,25 +56,28 @@ class BookingToUpdateSchema(Schema):
     flight_id = fields.Integer(validate=validate.Range(min=0))
     client_id = fields.Integer(validate=validate.Range(min=0))
 
+
 class FlightSchema(Schema):
 
     id = fields.Integer(validate=validate.Range(min=0))
-    number = fields.Str(validate=validate.Range(min=0), required=True)
+    number = fields.Str(validate=validate.Regexp("[a-zA-z0-9]*$"), required=True)
     departure_city = fields.Str(required=True)
     arrival_city = fields.Str(required=True)
     departure_time = fields.DateTime(required=True)
     arrival_time = fields.DateTime(required=True)
     status = fields.Integer(validate=validate.OneOf([1, 2, 3, 4]), required=True)
 
+
 class FlightToUpdateSchema(Schema):
 
     id = fields.Integer(validate=validate.Range(min=0))
-    number = fields.Str(validate=validate.Range(min=0))
+    number = fields.Str(validate=validate.Regexp("[a-zA-z0-9]*$"))
     departure_city = fields.Str()
     arrival_city = fields.Str()
     departure_time = fields.DateTime()
     arrival_time = fields.DateTime()
     status = fields.Integer(validate=validate.OneOf([1, 2, 3, 4]))
+
 
 class ManagerSchema(Schema):
 
@@ -82,6 +90,7 @@ class ManagerSchema(Schema):
         load_only=True, required=True
     )
     role = fields.Integer(validate=validate.OneOf([1, 2, 3]), required=True)
+
 
 class BoardingCheckSchema(Schema):
 
