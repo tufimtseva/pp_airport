@@ -1,4 +1,4 @@
-from main_folder.models import app, db, Client, Flight, Booking, BoardingCheck, Baggage
+from model.models import app, db, Client, Flight, Booking, BoardingCheck, Baggage
 from werkzeug.security import generate_password_hash
 
 with app.app_context():

@@ -1,7 +1,5 @@
 from unittest import TestCase
-from unittest.mock import patch, Mock
-from werkzeug.security import generate_password_hash
-from schemas import *
+from api.schemas import *
 from marshmallow import ValidationError
 import datetime
 

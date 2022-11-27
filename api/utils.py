@@ -1,4 +1,4 @@
-from main_folder.models import db
+from model.models import db
 
 
 def create_entity(model_class, **kwargs):

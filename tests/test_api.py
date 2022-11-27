@@ -1,10 +1,10 @@
 import json
-from main_folder.models import *
-from schemas import *
-from utils import create_entity
+from model.models import *
+from api.schemas import *
+from api.utils import create_entity
 from flask_testing import TestCase
 from flask import url_for
-from main_folder.controller import app
+from api.controller import app
 import base64
 
 
