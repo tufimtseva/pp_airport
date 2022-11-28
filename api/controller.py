@@ -2,7 +2,9 @@ from flask import jsonify, request
 from sqlalchemy.exc import IntegrityError
 from marshmallow import ValidationError
 from flask_httpauth import HTTPBasicAuth
+from werkzeug.security import check_password_hash
 import json
+
 
 from init import app
 from model.models import *
@@ -10,6 +12,7 @@ from api.schemas import *
 from api.utils import *
 
 auth_basic = HTTPBasicAuth()
+
 
 @auth_basic.verify_password
 def verify_password(email, password):
@@ -22,6 +25,7 @@ def verify_password(email, password):
     else:
         return None
 
+
 @auth_basic.error_handler
 def auth_error(status):
     msg = ""
@@ -30,6 +34,7 @@ def auth_error(status):
     if status == 403:
         msg = "Access denied"
     return {"msg": msg, "code": status}, status
+
 
 def error_handler(controller_func):
     def wrapper(*args, **kwargs):
@@ -159,24 +164,26 @@ def get_baggage(id):
 @error_handler
 @auth_basic.login_required(role='client')
 def create_booking():
-        current_user = auth_basic.current_user()
-        booking_data = BookingSchema().load(request.json)
-        client_id = booking_data['client_id']
-        flight_id = booking_data['flight_id']
-        client = Client.query.filter_by(id=client_id).first()
-        if client is None:
-            return "There is no client with such id", 409
-        if client.id != current_user.id:
-            return "Access denied", 403
-        flight = Flight.query.filter_by(id=flight_id).first()
+    current_user = auth_basic.current_user()
+    booking_data = BookingSchema().load(request.json)
+    client_id = booking_data['client_id']
+    flight_id = booking_data['flight_id']
+    client = Client.query.filter_by(id=client_id).first()
+    if client is None:
+        return "There is no client with such id", 409
+    if client.id != current_user.id:
+        return "Access denied", 403
+    flight = Flight.query.filter_by(id=flight_id).first()
 
-        if flight is None:
-            return "There is no flight with such id", 409
-        booking = create_entity(Booking, **booking_data)
-        return jsonify(BookingSchema().dump(booking)), 201
-    # except ValidationError as err:
-    #     print(err.messages)
-    #     return "", 412
+    if flight is None:
+        return "There is no flight with such id", 409
+    booking = create_entity(Booking, **booking_data)
+    return jsonify(BookingSchema().dump(booking)), 201
+
+
+# except ValidationError as err:
+#     print(err.messages)
+#     return "", 412
 
 
 @app.route('/booking/<id>', methods=['PUT'])
@@ -235,12 +242,13 @@ def delete_booking(id):
 @error_handler
 @auth_basic.login_required(role='manager')
 def update_flight_status(id):
-        flight_data = FlightToUpdateSchema().load(request.json)
-        flight = Flight.query.filter_by(id=id).first()
-        if flight is None:
-            return "Flight not found", 404
-        update_entity(flight, **flight_data)
-        return jsonify(FlightToUpdateSchema().dump(flight)), 200
+    flight_data = FlightToUpdateSchema().load(request.json)
+    flight = Flight.query.filter_by(id=id).first()
+    if flight is None:
+        return "Flight not found", 404
+    update_entity(flight, **flight_data)
+    return jsonify(FlightToUpdateSchema().dump(flight)), 200
+
 
 # @app.route('/flight/<id>', methods=['PUT'])
 # @error_handler
@@ -313,7 +321,6 @@ def get_baggage_for_flight(id):
 @error_handler
 @auth_basic.login_required(role='manager')
 def create_boarding_check():
-
     mgr = auth_basic.current_user()
     boarding_check_data = BoardingCheckSchema().load(request.json)
     manager_id = boarding_check_data['manager_id']
@@ -349,6 +356,4 @@ def get_boarding_check(id):
         return "Boarding check not found", 404
     return jsonify(BoardingCheckSchema().dump(boarding_check)), 200
 
-
 # app.register_blueprint(my_blueprint)
-

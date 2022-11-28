@@ -21,9 +21,6 @@ class Client(db.Model):
     def as_dict(self):
         return {p.name: getattr(self, p.name) for p in self.__table__.columns}
 
-    def get_roles(self):
-        return "client"
-
 
 # class Manager(db.Model):
 #     __tablename__ = 'manager'

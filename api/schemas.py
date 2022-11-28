@@ -1,5 +1,5 @@
-from marshmallow import Schema, fields, validate, validates
-from werkzeug.security import generate_password_hash, check_password_hash
+from marshmallow import Schema, fields, validate
+from werkzeug.security import generate_password_hash
 
 
 class ClientSchema(Schema):

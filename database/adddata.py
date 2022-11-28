@@ -12,12 +12,12 @@ with app.app_context():
                      email="t.ufimtseva@gmail.com", password=generate_password_hash("1234567"), role="client")
     manager1 = Client(name="Veronika", surname="Lanchuv", country="Ukraine",
                       date_of_birth="1996-03-27", passport_number="FN3398",
-                       email="veronika.lanchuv.kn.2021@lpnu.ua", password=generate_password_hash("lala1"),
-                       role='manager')
+                      email="veronika.lanchuv.kn.2021@lpnu.ua", password=generate_password_hash("lala1"),
+                      role='manager')
     manager2 = Client(name="Mary", surname="Queen", country="Ukraine",
                       date_of_birth="1999-03-27", passport_number="FN2398",
-                       email="m.queen@gmail.com", password=generate_password_hash("lala2"),
-                       role='manager')
+                      email="m.queen@gmail.com", password=generate_password_hash("lala2"),
+                      role='manager')
     flight1 = Flight(number="3580", departure_city="Lviv", arrival_city="London",
                      departure_time="2022-11-13 19:30:00.016547", arrival_time="2022-11-13 23:45:00.016547", status=1)
     flight2 = Flight(number="2487", departure_city="Berlin", arrival_city="Barcelona",
@@ -59,4 +59,3 @@ with app.app_context():
     db.session.add(baggage4)
     db.session.add(baggage5)
     db.session.commit()
-

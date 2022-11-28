@@ -1,12 +1,12 @@
-import json
-from flask_testing import TestCase
-from flask import url_for
 import base64
 
+from flask import url_for
+from flask_testing import TestCase
+
 from api.controller import *
-from model.models import *
 from api.schemas import *
 from api.utils import create_entity
+from model.models import *
 
 
 class TestApi(TestCase):
@@ -40,7 +40,7 @@ class TestApi(TestCase):
 class TestAuthentication(TestApi):
     def setUp(self):
         self.create_tables()
-        
+
         self.email = 'client2@gmail.com'
         self.password = "12345"
         self.password_hash = generate_password_hash('12345')
@@ -486,7 +486,7 @@ class TestAuthentication(TestApi):
         booking_to_add = create_entity(Booking, **booking_data)
 
         resp = self.client.delete(url_for("delete_booking", id=booking_to_add.id),
-                               headers=self.get_basic_client_headers())
+                                  headers=self.get_basic_client_headers())
         self.assertEqual(200, resp.status_code)
 
     def test_delete_booking_no_id(self):
@@ -500,7 +500,7 @@ class TestAuthentication(TestApi):
         headers = self.get_basic_client_headers()
 
         resp = self.client.delete(url_for("delete_booking", id=1),
-                               headers=self.get_basic_client_headers())
+                                  headers=self.get_basic_client_headers())
         self.assertEqual(404, resp.status_code)
 
     def test_delete_booking_with_baggage(self):
@@ -555,7 +555,7 @@ class TestAuthentication(TestApi):
     def test_get_flight_status_fail(self):
         resp = self.client.get(url_for("get_flight_status", id=1))
         self.assertEqual(404, resp.status_code)
-        self.assertEqual({'code': 404, 'msg': 'There is no flight with such id'}, resp.json)
+        self.assertEqual({'code': 404, 'msg': 'Flight not found'}, resp.json)
 
     def test_get_flight(self):
         flight_data = FlightSchema().load(self.flight1_true)
