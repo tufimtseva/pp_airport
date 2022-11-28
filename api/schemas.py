@@ -12,7 +12,7 @@ class ClientSchema(Schema):
     passport_number = fields.Str(validate=validate.Length(equal=6), required=True)
     email = fields.Email(required=True)
     password = fields.Function(
-        deserialize=lambda passw: generate_password_hash(passw),
+        deserialize=lambda raw_password: generate_password_hash(raw_password),
         load_only=True, required=True
     )
     role = fields.Str(validate=validate.OneOf(["client", "manager"]), required=True)
@@ -28,7 +28,7 @@ class ClientToUpdateSchema(Schema):
     passport_number = fields.Str(validate=validate.Length(equal=6))
     email = fields.Email()
     password = fields.Function(
-        deserialize=lambda passw: generate_password_hash(passw),
+        deserialize=lambda raw_password: generate_password_hash(raw_password),
         load_only=True
 
     )
@@ -86,7 +86,7 @@ class ManagerSchema(Schema):
     surname = fields.Str(required=True)
     email = fields.Email(required=True)
     password = fields.Function(
-        deserialize=lambda passw: generate_password_hash(passw),
+        deserialize=lambda raw_password: generate_password_hash(raw_password),
         load_only=True, required=True
     )
     role = fields.Integer(validate=validate.OneOf([1, 2, 3]), required=True)
