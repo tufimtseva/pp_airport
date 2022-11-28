@@ -248,6 +248,18 @@ def update_flight_status(id):
     return jsonify(FlightToUpdateSchema().dump(flight)), 200
 
 
+@app.route('/flight/<id>', methods=['PUT'])
+@error_handler
+@auth_basic.login_required(role='manager')
+def update_flight(id):
+    flight_data = FlightToUpdateSchema().load(request.json)
+    flight = Flight.query.filter_by(id=id).first()
+    if flight is None:
+        return "Flight not found", 404
+    update_entity(flight, **flight_data)
+    return jsonify(FlightToUpdateSchema().dump(flight)), 200
+
+
 @app.route('/flight', methods=['GET'])
 @error_handler
 def get_all_flights():
@@ -289,6 +301,29 @@ def get_users_for_flight(id):
                       sort_keys=True, default=str), 200
 
 
+@app.route('/flight/<id>/boarded-user', methods=['GET'])
+@error_handler
+@auth_basic.login_required(role='manager')
+def get_boarded_users_for_flight(id):
+    flight = Flight.query.filter_by(id=id).first()
+    if flight is None:
+        return "Flight not found", 404
+    bookings = Booking.query.filter_by(flight_id=id).all()
+    clients = []
+    for booking in bookings:
+        boarding_checks = BoardingCheck.query.filter_by(booking_id=booking.id).all()
+        if boarding_checks != []:
+            boarded = True
+            for boarding_check in boarding_checks:
+                if boarding_check.result == 0:
+                    boarded = False
+            if boarded:
+                client = Client.query.filter_by(id=booking.client_id).first()
+                clients.append(client)
+    return json.dumps([p.as_dict() for p in clients], indent=4,
+                      sort_keys=True, default=str), 200
+
+
 @app.route('/flight/<id>/baggage', methods=['GET'])
 @error_handler
 @auth_basic.login_required(role='manager')
@@ -297,13 +332,58 @@ def get_baggage_for_flight(id):
     if flight is None:
         return "Flight not found", 404
     bookings = Booking.query.filter_by(flight_id=id).all()
-    baggages = []
+    baggage = []
     for booking in bookings:
-        baggage = Baggage.query.filter_by(booking_id=booking.id).first()
-        if baggage is not None:
-            baggages.append(baggage)
-    return json.dumps([p.as_dict() for p in baggages], indent=4,
+        boarding_checks = BoardingCheck.query.filter_by(
+            booking_id=booking.id).all()
+        if boarding_checks != []:
+            boarded = True
+            for boarding_check in boarding_checks:
+                if boarding_check.result == 0:
+                    boarded = False
+            if boarded:
+                bagg = Baggage.query.filter_by(booking_id=booking.id).all()
+                if bagg != []:
+                    baggage.append(bagg)
+    return json.dumps([[p.as_dict() for p in bagg] for bagg in baggage], indent=4,
                       sort_keys=True, default=str), 200
+
+
+
+@app.route('/flight/<id>/report', methods=['GET'])
+@error_handler
+@auth_basic.login_required(role='manager')
+def get_report_for_flight(id):
+    flight = Flight.query.filter_by(id=id).first()
+    if flight is None:
+        return "Flight not found", 404
+    bookings = Booking.query.filter_by(flight_id=id).all()
+    clients = []
+    baggage = []
+    clients_booked = []
+    for booking in bookings:
+        client = Client.query.filter_by(id=booking.client_id).first()
+        clients_booked.append(client)
+        boarding_checks = BoardingCheck.query.filter_by(booking_id=booking.id).all()
+        if boarding_checks != []:
+            boarded = True
+            for boarding_check in boarding_checks:
+                if boarding_check.result == 0:
+                    boarded = False
+            if boarded:
+                client = Client.query.filter_by(id=booking.client_id).first()
+                clients.append(client)
+                bagg = Baggage.query.filter_by(booking_id=booking.id).all()
+                if bagg != []:
+                    baggage.append(bagg)
+    return {"flight number : ": flight.number,
+             "total clients who booked : ": len(clients_booked),
+             "total clients who boarded : ": len(clients),
+             "total baggage count : ": len(baggage)}
+
+
+
+
 
 
 @app.route('/boarding-check', methods=['POST'])

@@ -126,6 +126,12 @@ class TestAuthentication(TestApi):
             "flight_id": 1,
             "client_id": 1
         }
+        self.booking2_true = {
+            "reservation_time": "2017-07-21T17:32:28.000Z",
+            "baggage_count": 2,
+            "flight_id": 1,
+            "client_id": 2
+        }
         self.booking_fail_client = {
             "reservation_time": "2017-07-21T17:32:28.000Z",
             "baggage_count": 2,
@@ -137,6 +143,12 @@ class TestAuthentication(TestApi):
             "result": 1,
             "manager_id": 1,
             "booking_id": 1
+        }
+        self.boarding_check1_fail_result = {
+            "type": 1,
+            "result": 0,
+            "manager_id": 1,
+            "booking_id": 2
         }
         self.boarding_check_fail_manager = {
             "type": 1,
@@ -565,6 +577,24 @@ class TestAuthentication(TestApi):
                                headers=headers, data=payload)
         self.assertEqual(200, resp.status_code)
 
+
+    def test_update_flight(self):
+        client_data = ClientSchema().load(self.manager1_true)
+        client_to_add = create_entity(Client, **client_data)
+        flight_data = FlightSchema().load(self.flight1_true)
+        flight_to_add = create_entity(Flight, **flight_data)
+
+        payload = json.dumps(
+            self.flight1_true
+        )
+        headers = self.get_basic_manager_headers()
+        headers["Content-Type"] = "application/json"
+        resp = self.client.put(url_for("update_flight",
+                                       id=flight_to_add.id),
+                               headers=headers, data=payload)
+        self.assertEqual(200, resp.status_code)
+
+
     def test_get_flight_status(self):
         flight_data = FlightSchema().load(self.flight1_true)
         flight_to_add = create_entity(Flight, **flight_data)
@@ -602,6 +632,61 @@ class TestAuthentication(TestApi):
         flight_to_add = create_entity(Flight, **flight_data)
 
         resp = self.client.get(url_for("get_users_for_flight",
+                                       id=flight_to_add.id),
+                               headers=self.get_basic_manager_headers())
+        self.assertEqual(200, resp.status_code)
+
+
+    def test_get_boarded_users_for_flight(self):
+        client_data = ClientSchema().load(self.manager1_true)
+        client_to_add = create_entity(Client, **client_data)
+        client_data2 = ClientSchema().load(self.client1_true)
+        client_to_add = create_entity(Client, **client_data2)
+        client_data3 = ClientSchema().load(self.client2_true)
+        client_to_add = create_entity(Client, **client_data3)
+        flight_data = FlightSchema().load(self.flight1_true)
+        flight_to_add = create_entity(Flight, **flight_data)
+        booking_data = BookingSchema().load(self.booking1_true)
+        booking_to_add = create_entity(Booking, **booking_data)
+        booking_data2 = BookingSchema().load(self.booking2_true)
+        booking_to_add2 = create_entity(Booking, **booking_data2)
+        boarding_check_data = BoardingCheckSchema() \
+            .load(self.boarding_check1_true)
+        boarding_check_to_add = \
+            create_entity(BoardingCheck, **boarding_check_data)
+        boarding_check_data2 = BoardingCheckSchema() \
+            .load(self.boarding_check1_fail_result)
+        boarding_check_to_add = \
+            create_entity(BoardingCheck, **boarding_check_data2)
+
+        resp = self.client.get(url_for("get_boarded_users_for_flight",
+                                       id=flight_to_add.id),
+                               headers=self.get_basic_manager_headers())
+        self.assertEqual(200, resp.status_code)
+
+
+    def test_get_report_for_flight(self):
+        client_data = ClientSchema().load(self.manager1_true)
+        client_to_add = create_entity(Client, **client_data)
+        client_data2 = ClientSchema().load(self.client1_true)
+        client_to_add = create_entity(Client, **client_data2)
+        client_data3 = ClientSchema().load(self.client2_true)
+        client_to_add = create_entity(Client, **client_data3)
+        flight_data = FlightSchema().load(self.flight1_true)
+        flight_to_add = create_entity(Flight, **flight_data)
+        booking_data = BookingSchema().load(self.booking1_true)
+        booking_to_add = create_entity(Booking, **booking_data)
+        booking_data2 = BookingSchema().load(self.booking2_true)
+        booking_to_add2 = create_entity(Booking, **booking_data2)
+        boarding_check_data = BoardingCheckSchema() \
+            .load(self.boarding_check1_true)
+        boarding_check_to_add = \
+            create_entity(BoardingCheck, **boarding_check_data)
+        boarding_check_data2 = BoardingCheckSchema() \
+            .load(self.boarding_check1_fail_result)
+        boarding_check_to_add = \
+            create_entity(BoardingCheck, **boarding_check_data2)
+        resp = self.client.get(url_for("get_report_for_flight",
                                        id=flight_to_add.id),
                                headers=self.get_basic_manager_headers())
         self.assertEqual(200, resp.status_code)

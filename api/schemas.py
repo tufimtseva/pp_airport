@@ -84,19 +84,6 @@ class FlightToUpdateSchema(Schema):
     status = fields.Integer(validate=validate.OneOf([1, 2, 3, 4]))
 
 
-class ManagerSchema(Schema):
-
-    id = fields.Integer(validate=validate.Range(min=0))
-    name = fields.Str(required=True)
-    surname = fields.Str(required=True)
-    email = fields.Email(required=True)
-    password = fields.Function(
-        deserialize=lambda raw_password: generate_password_hash(raw_password),
-        load_only=True, required=True
-    )
-    role = fields.Integer(validate=validate.OneOf([1, 2, 3]), required=True)
-
-
 class BoardingCheckSchema(Schema):
 
     id = fields.Integer(validate=validate.Range(min=0))

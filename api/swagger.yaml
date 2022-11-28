@@ -449,6 +449,43 @@ paths:
              
                   
   /flight/{id}:
+    put:
+      tags:
+        - Flight
+      security:
+        - basicAuth_mgr: [ ]
+      summary: Update an existing flight
+      description: Update an existing flight by id
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to be updated
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: New flight data
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Flight  was successfully updated
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
+
     get:
       tags:
         - Flight
@@ -543,8 +580,8 @@ paths:
         - Flight
       security:
         - basicAuth_mgr: []
-      summary: Get users from flight
-      description: Get all users from flight
+      summary: Get all users who booked for  flight
+      description: Get all users who booked for  flight
       parameters:
         - name: id
           in: path
@@ -568,26 +605,97 @@ paths:
           $ref: '#/components/responses/WrongCredentialsError'
         '403':
           $ref: '#/components/responses/AccessDeniedError'
-              
-  /flight/{id}/baggage:
+
+  /flight/{id}/boarded-user:
     get:
       tags:
         - Flight
       security:
         - basicAuth_mgr: []
-      summary: Get baggages from flight
-      description: Get all baggages from flight
+      summary: Get only boarded users from flight
+      description: Get only boarded users from flight
       parameters:
         - name: id
           in: path
-          description: id of flight to get all baggages
+          description: id of flight to get all boarded  users
           required: true
           schema:
             type: integer
             example: 1
       responses:
         '200':
-          description: List of all flight's baggages
+          description: List of all flight's boarded users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
+
+  /flight/{id}/report:
+    get:
+      tags:
+        - Flight
+      security:
+        - basicAuth_mgr: []
+      summary: Get report for flight
+      description: Get info about passengers and baggage for flight by id
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to be reported
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Report was successfully returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flight_number:
+                    type: integer
+                    example: 1
+                  total clients who boarded:
+                    type: integer
+                    example: 30
+                  total clients who booked:
+                    type: integer
+                    example: 50
+                  total baggage count:
+                    type: integer
+                    example: 35
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /flight/{id}/baggage:
+    get:
+      tags:
+        - Flight
+      security:
+        - basicAuth_mgr: []
+      summary: Get all  baggage for flight
+      description: Get all baggage for flight
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to get all baggage
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: List of all flight's baggage
           content:
             application/json:
               schema:
