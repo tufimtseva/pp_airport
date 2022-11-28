@@ -122,11 +122,13 @@ def delete_user(id):
     bookings_to_delete = Booking.query.filter_by(client_id=id).all()
     if bookings_to_delete != []:
         for booking in bookings_to_delete:
-            baggage_to_delete = Baggage.query.filter_by(booking_id=booking.id).all()
+            baggage_to_delete = Baggage.query\
+                .filter_by(booking_id=booking.id).all()
             if baggage_to_delete != []:
                 for baggage in baggage_to_delete:
                     delete_entity(baggage)
-            boarding_checks_to_delete = BoardingCheck.query.filter_by(booking_id=booking.id).all()
+            boarding_checks_to_delete = BoardingCheck.query\
+                .filter_by(booking_id=booking.id).all()
             if boarding_checks_to_delete != []:
                 for boarding_check in boarding_checks_to_delete:
                     delete_entity(boarding_check)
@@ -230,7 +232,8 @@ def delete_booking(id):
         delete_entity(booking)
         return "", 200
     else:
-        return "Cannot delete booking, the baggage or boarding check already exists", 409
+        return "Cannot delete booking, " \
+               "the baggage or boarding check already exists", 409
 
 
 @app.route('/flight/<id>/public-status', methods=['PUT'])
@@ -248,7 +251,8 @@ def update_flight_status(id):
 @app.route('/flight', methods=['GET'])
 @error_handler
 def get_all_flights():
-    return json.dumps([p.as_dict() for p in Flight.query.all()], indent=4, sort_keys=True, default=str), 200
+    return json.dumps([p.as_dict() for p in Flight.query.all()],
+                      indent=4, sort_keys=True, default=str), 200
 
 
 @app.route('/flight/<id>', methods=['GET'])
@@ -281,7 +285,8 @@ def get_users_for_flight(id):
     for booking in bookings:
         client = Client.query.filter_by(id=booking.client_id).first()
         clients.append(client)
-    return json.dumps([p.as_dict() for p in clients], indent=4, sort_keys=True, default=str), 200
+    return json.dumps([p.as_dict() for p in clients], indent=4,
+                      sort_keys=True, default=str), 200
 
 
 @app.route('/flight/<id>/baggage', methods=['GET'])
@@ -297,7 +302,8 @@ def get_baggage_for_flight(id):
         baggage = Baggage.query.filter_by(booking_id=booking.id).first()
         if baggage is not None:
             baggages.append(baggage)
-    return json.dumps([p.as_dict() for p in baggages], indent=4, sort_keys=True, default=str), 200
+    return json.dumps([p.as_dict() for p in baggages], indent=4,
+                      sort_keys=True, default=str), 200
 
 
 @app.route('/boarding-check', methods=['POST'])
@@ -324,7 +330,8 @@ def create_boarding_check():
 @error_handler
 @auth_basic.login_required(role='manager')
 def get_all_boarding_checks():
-    return json.dumps([p.as_dict() for p in BoardingCheck.query.all()], indent=4, sort_keys=True, default=str), 200
+    return json.dumps([p.as_dict() for p in BoardingCheck.query.all()],
+                      indent=4, sort_keys=True, default=str), 200
 
 
 @app.route('/boarding-check/<id>', methods=['GET'])

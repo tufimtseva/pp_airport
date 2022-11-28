@@ -9,13 +9,15 @@ class ClientSchema(Schema):
     surname = fields.Str(required=True)
     country = fields.Str(required=True)
     date_of_birth = fields.Date(required=True)
-    passport_number = fields.Str(validate=validate.Length(equal=6), required=True)
+    passport_number = fields.Str(validate=validate.Length(equal=6),
+                                 required=True)
     email = fields.Email(required=True)
     password = fields.Function(
         deserialize=lambda raw_password: generate_password_hash(raw_password),
         load_only=True, required=True
     )
-    role = fields.Str(validate=validate.OneOf(["client", "manager"]), required=True)
+    role = fields.Str(validate=validate.OneOf(["client", "manager"]),
+                      required=True)
 
 
 class ClientToUpdateSchema(Schema):
@@ -44,7 +46,8 @@ class BaggageSchema(Schema):
 class BookingSchema(Schema):
     id = fields.Integer(validate=validate.Range(min=0))
     reservation_time = fields.DateTime(required=True)
-    baggage_count = fields.Integer(validate=validate.Range(min=0), required=True)
+    baggage_count = fields.Integer(validate=validate.Range(min=0),
+                                   required=True)
     flight_id = fields.Integer(validate=validate.Range(min=0), required=True)
     client_id = fields.Integer(validate=validate.Range(min=0), required=True)
 
@@ -60,12 +63,14 @@ class BookingToUpdateSchema(Schema):
 class FlightSchema(Schema):
 
     id = fields.Integer(validate=validate.Range(min=0))
-    number = fields.Str(validate=validate.Regexp("[a-zA-z0-9]*$"), required=True)
+    number = fields.Str(validate=validate.Regexp("[a-zA-z0-9]*$"),
+                        required=True)
     departure_city = fields.Str(required=True)
     arrival_city = fields.Str(required=True)
     departure_time = fields.DateTime(required=True)
     arrival_time = fields.DateTime(required=True)
-    status = fields.Integer(validate=validate.OneOf([1, 2, 3, 4]), required=True)
+    status = fields.Integer(validate=validate.OneOf([1, 2, 3, 4]),
+                            required=True)
 
 
 class FlightToUpdateSchema(Schema):
