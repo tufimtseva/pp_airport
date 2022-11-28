@@ -1,4 +1,5 @@
 from waitress import serve
+from api import controller
 
 from init import app
 

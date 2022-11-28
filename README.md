@@ -3,24 +3,20 @@
 According to my variant the project uses
 - Python 3.8.x
 - venv as a virtual environment manager 
+- postgresql database
 
 # Project setup
 
 1. Install python 3.8.13
-   1. On Mac, install pyenv by running
+   1. Install pyenv by running
       ```
       brew install pyenv
       ```
-      Then use
-      ```
-      pyenv install 3.8.13
-      ```
-      On Mac M1 / 12.5.1 you may need to use
-      ```
-      SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk MACOSX_DEPLOYMENT_TARGET=12.3 pyenv install 3.8.13
-      ```
-   2. On Windows...
-   
+   2.  Then use
+        ```
+        pyenv install 3.8.13
+        ```
+ 
 2. Create virtual environment 
     ```
    python3.8 -m venv ~/.venv/pp_airport-env
@@ -37,12 +33,33 @@ According to my variant the project uses
    ```
    pip install requrements.txt
    ```
-
-5. Run project using gunicorn
-   ```
-   gunicorn -w 4 app:app
-   ```
    
+5. Initialize the alembic to our working project directory
+   ```
+   alembic init alembic
+   ```
+6. Change the sqlalchemy.url in your alembic.ini file
+   ```
+   sqlalchemy.url = mysql+mysqldb://root:root@localhost:3306/database_name
+   ```
+7.  In env.py in our alembic folder write :
+    ```
+    from model import Base
+    target_metadata = [Base.metadata]   
+    ```
+8. To generate all tables in your database:
+   ```
+   alembic upgrade head
+   ```
+9. To populate the database with data run the addata.py file which is in 
+database folder
+ # Running project
+   Run project using gunicorn
+   ```
+   PORT=5000 gunicorn -w 4 app:app
+   ```
+ # OpenApi Documentation
+   The api documentation is in "api" folder - swagger.yaml
 
 
 
