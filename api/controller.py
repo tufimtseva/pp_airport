@@ -181,11 +181,6 @@ def create_booking():
     return jsonify(BookingSchema().dump(booking)), 201
 
 
-# except ValidationError as err:
-#     print(err.messages)
-#     return "", 412
-
-
 @app.route('/booking/<id>', methods=['PUT'])
 @error_handler
 @auth_basic.login_required(role='client')
@@ -248,18 +243,6 @@ def update_flight_status(id):
         return "Flight not found", 404
     update_entity(flight, **flight_data)
     return jsonify(FlightToUpdateSchema().dump(flight)), 200
-
-
-# @app.route('/flight/<id>', methods=['PUT'])
-# @error_handler
-# @auth_basic.login_required(role='manager')
-# def update_flight(id):
-#         flight_data = FlightToUpdateSchema().load(request.json)
-#         flight = Flight.query.filter_by(id=id).first()
-#         if flight is None:
-#             return "There is no flight with such id", 404
-#         update_entity(flight, **flight_data)
-#         return jsonify(FlightToUpdateSchema().dump(flight)), 200
 
 
 @app.route('/flight', methods=['GET'])
@@ -335,9 +318,6 @@ def create_boarding_check():
         return "Access denied", 403
     boarding_check = create_entity(BoardingCheck, **boarding_check_data)
     return jsonify(BoardingCheckSchema().dump(boarding_check)), 200
-    # except ValidationError as err:
-    #     print(err.messages)
-    #     return "", 412
 
 
 @app.route('/boarding-check', methods=['GET'])
@@ -356,4 +336,3 @@ def get_boarding_check(id):
         return "Boarding check not found", 404
     return jsonify(BoardingCheckSchema().dump(boarding_check)), 200
 
-# app.register_blueprint(my_blueprint)

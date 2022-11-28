@@ -14,27 +14,8 @@ class Client(db.Model):
     password = db.Column(db.String(250))
     role = db.Column(db.String(50))
 
-    # def __repr__(self):
-    #     return "<User: '{}' '{}', email: '{}'>" \
-    #         .format(self.name, self.surname, self.email)
-
     def as_dict(self):
         return {p.name: getattr(self, p.name) for p in self.__table__.columns}
-
-
-# class Manager(db.Model):
-#     __tablename__ = 'manager'
-#
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(50), nullable=False)
-#     surname = db.Column(db.String(50), nullable=False)
-#     email = db.Column(db.String(100), unique=True, nullable=False)
-#     password = db.Column(db.String(250))
-#     role = db.Column(db.Integer, nullable=False)
-#
-#     def __repr__(self):
-#         return "<Manager: '{}' '{}', email: '{}', role: '{}'>" \
-#             .format(self.name, self.surname, self.email, self.role)
 
 
 class Flight(db.Model):
@@ -47,10 +28,6 @@ class Flight(db.Model):
     departure_time = db.Column(db.DateTime(timezone=True))
     arrival_time = db.Column(db.DateTime(timezone=True))
     status = db.Column(db.Integer, nullable=False)
-
-    # def __repr__(self):
-    #     return "<Flight  '{}' - '{}' on '{}' - '{}'>" \
-    #         .format(self.departure_city, self.arrival_city, self.departure_time, self.arrival_time)
 
     def as_dict(self):
         return {p.name: getattr(self, p.name) for p in self.__table__.columns}
@@ -65,10 +42,6 @@ class Booking(db.Model):
     flight_id = db.Column(db.Integer, db.ForeignKey('flight.id'))
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
 
-    # def __repr__(self):
-    #     return "<Booking by user id: '{}' >" \
-    #         .format(self.client_id)
-
 
 class BoardingCheck(db.Model):
     __tablename__ = 'boarding_check'
@@ -78,10 +51,6 @@ class BoardingCheck(db.Model):
     result = db.Column(db.Integer, nullable=False)
     manager_id = db.Column(db.Integer, db.ForeignKey('client.id'))
     booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'))
-
-    # def __repr__(self):
-    #     return "<Boarding result '{}' for booking id: '{}' >" \
-    #         .format(self.result, self.booking_id)
 
     def as_dict(self):
         return {p.name: getattr(self, p.name) for p in self.__table__.columns}
@@ -93,10 +62,6 @@ class Baggage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     weight = db.Column(db.Float, nullable=False)
     booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'))
-
-    # def __repr__(self):
-    #     return "<Baggage weight: '{}' >" \
-    #         .format(self.weight)
 
     def as_dict(self):
         return {p.name: getattr(self, p.name) for p in self.__table__.columns}

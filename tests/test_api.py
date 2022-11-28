@@ -205,8 +205,6 @@ class TestAuthentication(TestApi):
         self.assertEqual(400, resp.status_code)
 
     def test_update_client(self):
-        # client_data_add = ClientSchema().load(self.client1_true)
-        # client_to_add = create_entity(Client, **client_data_add)
         client_data_update = ClientSchema().load(self.client1_true)
         client_to_update = create_entity(Client, **client_data_update)
         payload = json.dumps(
@@ -382,8 +380,6 @@ class TestAuthentication(TestApi):
         )
         client_data = ClientSchema().load(self.client1_true)
         client_to_add = create_entity(Client, **client_data)
-        # flight_data = FlightSchema().load(self.flight1_true)
-        # flight_to_add = create_entity(Flight, **flight_data)
         headers = self.get_basic_client_headers()
         headers["Content-Type"] = "application/json"
         resp = self.client.post(url_for("create_booking"), headers=headers, data=payload)
@@ -494,10 +490,6 @@ class TestAuthentication(TestApi):
         client_to_add = create_entity(Client, **client_data)
         flight_data = FlightSchema().load(self.flight1_true)
         flight_to_add = create_entity(Flight, **flight_data)
-        # booking_data = BookingSchema().load(self.booking1_true)
-        # booking_to_add = create_entity(Booking, **booking_data)
-
-        headers = self.get_basic_client_headers()
 
         resp = self.client.delete(url_for("delete_booking", id=1),
                                   headers=self.get_basic_client_headers())
