@@ -1,6 +1,6 @@
 openapi: "3.0.2"
 info:
-  title: API Title
+  title: Airport
   version: "1.0"
 servers:
   - url: http://127.0.0.1:5000
@@ -356,17 +356,17 @@ paths:
         - Boarding check
       security:
         - basicAuth_mgr: []
-      summary: Get all bookings
-      description: Get the list of all bookings and their details
+      summary: Get all boarding checks
+      description: Get the list of all boarding checks and their details
       responses:
         '200':
-          description: List of all bookings
+          description: List of all boarding checks
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Boarding_check'
+                  $ref: '#/components/schemas/BoardingCheck'
         '401':
           $ref: '#/components/responses/WrongCredentialsError'
         '403':
@@ -383,7 +383,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Boarding_check'
+              $ref: '#/components/schemas/BoardingCheck'
         required: true
       responses:
         '201':
@@ -391,7 +391,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Boarding_check'
+                $ref: '#/components/schemas/BoardingCheck'
         '400':
           $ref: '#/components/responses/ValidationError'
         '409':
@@ -423,7 +423,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Boarding_check'
+                $ref: '#/components/schemas/BoardingCheck'
         '404':
           $ref: '#/components/responses/NotFoundError'
         '401':
@@ -445,7 +445,35 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Flight' 
+                  $ref: '#/components/schemas/Flight'
+
+    post:
+      tags:
+        - Flight
+      security:
+        - basicAuth_mgr: []
+      summary: Create flight
+      description: Create new flight
+      requestBody:
+        description: New flight
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Flight'
+        required: true
+      responses:
+        '201':
+          description: New flight was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
              
                   
   /flight/{id}:
@@ -529,11 +557,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 1
+                $ref: '#/components/schemas/Public_status'
         '404':
           $ref: '#/components/responses/NotFoundError'
 
@@ -557,11 +581,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: integer
-                  example: 1
+              $ref: '#/components/schemas/Public_status'
       responses:
         '200':
           description: Flight status  was successfully updated
@@ -713,7 +733,7 @@ paths:
 components:
   responses:
     AccessDeniedError:
-      description: Authentication information is missing or invalid
+      description: Access denied
     ValidationError:
       description: Invalid input data
     IntegrityError:
@@ -747,7 +767,7 @@ components:
           example: 2017-10-11
         passport_number:
           type: string
-          example: 136544
+          example: RK6544
         email:
           type: string
           example: m.anderson@gmail.com
@@ -756,32 +776,9 @@ components:
           type: string
           format: password 
           example: dvknmwpkd254v
-    
-    Manager:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          readOnly: true
-          example: 13
-        name:
-          type: string
-          example: Mary
-        surname:
-          type: string
-          example: Lvk
-        email:
-          type: string
-          example: m.anderson@gmail.com
-        password:
-          type: string
-          format: password
-          example: Uoihasohao5236
         role:
-          type: integer
-          format: date
-          example: 1
+          type: string
+          example: client
 
     Flight:
       type: object
@@ -794,7 +791,7 @@ components:
         number:
           type: string
           example: LH5563
-        depature_city:
+        departure_city:
           type: string
           example: Lviv
         arrival_city:
@@ -811,7 +808,7 @@ components:
         status:
           type: integer
           format: date
-          example: 1    
+          example: 0
     
     Booking:
       type: object
@@ -831,7 +828,7 @@ components:
         flight_id:
           type: integer
           example: 1
-        user_id:
+        client_id:
           type: integer
           example: 1
     
@@ -852,7 +849,7 @@ components:
           format: int64
           example: 12
           
-    Boarding_check:
+    BoardingCheck:
       type: object
       properties:
         id:
@@ -865,7 +862,7 @@ components:
           example: 1          
         result:
           type: integer
-          example: 2            
+          example: 1
         manager_id:
           type: integer
           example: 1
@@ -873,6 +870,12 @@ components:
           type: integer
           example: 1
 
+    Public_status:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 1
 
   securitySchemes:
       basicAuth_mgr:

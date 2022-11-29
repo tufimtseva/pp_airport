@@ -69,7 +69,7 @@ class FlightSchema(Schema):
     arrival_city = fields.Str(required=True)
     departure_time = fields.DateTime(required=True)
     arrival_time = fields.DateTime(required=True)
-    status = fields.Integer(validate=validate.OneOf([1, 2, 3, 4]),
+    status = fields.Integer(validate=validate.OneOf([0, 1, 2, 3]),
                             required=True)
 
 
@@ -81,7 +81,7 @@ class FlightToUpdateSchema(Schema):
     arrival_city = fields.Str()
     departure_time = fields.DateTime()
     arrival_time = fields.DateTime()
-    status = fields.Integer(validate=validate.OneOf([1, 2, 3, 4]))
+    status = fields.Integer(validate=validate.OneOf([0, 1, 2, 3]))
 
 
 class BoardingCheckSchema(Schema):
@@ -91,3 +91,8 @@ class BoardingCheckSchema(Schema):
     result = fields.Integer(validate=validate.OneOf([0, 1]), required=True)
     manager_id = fields.Integer(validate=validate.Range(min=0), required=True)
     booking_id = fields.Integer(validate=validate.Range(min=0), required=True)
+
+
+class PublicStatusSchema(Schema):
+
+    status = fields.Integer(validate=validate.OneOf([0, 1, 2, 3]))
