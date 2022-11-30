@@ -4,33 +4,33 @@ from model.models import *
 from init import app
 
 with app.app_context():
-    client1 = Client(name="Khrystyna", surname="Dolynska", country="Ukraine",
+    client1 = User(name="Khrystyna", surname="Dolynska", country="Ukraine",
                      date_of_birth="2004-03-27", passport_number="FN3378",
                      email="khrystyna.dol@gmail.com",
                      password=generate_password_hash("12345"), role="client")
-    client2 = Client(name="Tetiana", surname="Ufimtseva", country="Ukraine",
+    client2 = User(name="Tetiana", surname="Ufimtseva", country="Ukraine",
                      date_of_birth="2004-01-02", passport_number="FN3255",
                      email="t.ufimtseva@gmail.com",
                      password=generate_password_hash("54321"), role="client")
-    client3 = Client(name="Oleksii", surname="Vasilenko", country="Ukraine",
+    client3 = User(name="Oleksii", surname="Vasilenko", country="Ukraine",
                      date_of_birth="2001-02-04", passport_number="FN2125",
                      email="o.vasilenko@gmail.com",
                      password=generate_password_hash("54321"), role="client")
-    client4 = Client(name="Valeria", surname="Voronych", country="Ukraine",
+    client4 = User(name="Valeria", surname="Voronych", country="Ukraine",
                      date_of_birth="2002-10-14", passport_number="FN2120",
                      email="v.voronych@gmail.com",
                      password=generate_password_hash("54321"), role="client")
-    manager1 = Client(name="Veronika", surname="Lanchuv", country="Ukraine",
+    manager1 = User(name="Veronika", surname="Lanchuv", country="Ukraine",
                       date_of_birth="1996-03-27", passport_number="FN3198",
                       email="veronika.lanchuv.kn.2021@lpnu.ua",
                       password=generate_password_hash("m1"),
                       role='manager')
-    manager2 = Client(name="Mary", surname="Queen", country="Ukraine",
+    manager2 = User(name="Mary", surname="Queen", country="Ukraine",
                       date_of_birth="1999-03-27", passport_number="FN2328",
                       email="m.queen@gmail.com",
                       password=generate_password_hash("m2"),
                       role='manager')
-    manager3 = Client(name="Anastasia", surname="Shepilenko", country="Ukraine",
+    manager3 = User(name="Anastasia", surname="Shepilenko", country="Ukraine",
                       date_of_birth="1986-06-20", passport_number="FN3098",
                       email="nastya.shep.kn.2021@lpnu.ua",
                       password=generate_password_hash("m3"),
@@ -57,16 +57,16 @@ with app.app_context():
 
     booking1 = Booking(reservation_time="2022-10-20 22:03:59.016547",
                        baggage_count=2,
-                       flight_id=flight1.id, client_id=client1.id)
+                       flight_id=flight1.id, user_id=client1.id)
     booking2 = Booking(reservation_time="2022-10-28 03:15:34.016547",
                        baggage_count=3,
-                       flight_id=flight2.id, client_id=client2.id)
+                       flight_id=flight2.id, user_id=client2.id)
     booking3 = Booking(reservation_time="2022-10-28 03:15:34.016547",
                        baggage_count=1,
-                       flight_id=flight2.id, client_id=client3.id)
+                       flight_id=flight2.id, user_id=client3.id)
     booking4 = Booking(reservation_time="2022-10-28 03:15:34.016547",
                        baggage_count=0,
-                       flight_id=flight2.id, client_id=client4.id)
+                       flight_id=flight2.id, user_id=client4.id)
 
     db.session.add(booking1)
     db.session.add(booking2)

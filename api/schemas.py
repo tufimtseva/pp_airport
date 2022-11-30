@@ -2,7 +2,7 @@ from marshmallow import Schema, fields, validate
 from werkzeug.security import generate_password_hash
 
 
-class ClientSchema(Schema):
+class UserSchema(Schema):
 
     id = fields.Integer(validate=validate.Range(min=0))
     name = fields.Str(required=True)
@@ -20,7 +20,7 @@ class ClientSchema(Schema):
                       required=True)
 
 
-class ClientToUpdateSchema(Schema):
+class UserToUpdateSchema(Schema):
 
     id = fields.Integer(validate=validate.Range(min=0))
     name = fields.Str()
@@ -49,7 +49,7 @@ class BookingSchema(Schema):
     baggage_count = fields.Integer(validate=validate.Range(min=0),
                                    required=True)
     flight_id = fields.Integer(validate=validate.Range(min=0), required=True)
-    client_id = fields.Integer(validate=validate.Range(min=0), required=True)
+    user_id = fields.Integer(validate=validate.Range(min=0), required=True)
 
 
 class BookingToUpdateSchema(Schema):
@@ -57,7 +57,7 @@ class BookingToUpdateSchema(Schema):
     reservation_time = fields.DateTime()
     baggage_count = fields.Integer(validate=validate.Range(min=0))
     flight_id = fields.Integer(validate=validate.Range(min=0))
-    client_id = fields.Integer(validate=validate.Range(min=0))
+    user_id = fields.Integer(validate=validate.Range(min=0))
 
 
 class FlightSchema(Schema):
