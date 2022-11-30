@@ -1,3 +1,6 @@
 from waitress import serve
-import airportapp
-serve(airportapp.app, host='127.0.0.1', port=5000)
+from api import controller
+
+from init import app
+
+serve(app, host='127.0.0.1', port=5000)

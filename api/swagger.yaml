@@ -1,6 +1,6 @@
 openapi: "3.0.2"
 info:
-  title: API Title
+  title: Airport
   version: "1.0"
 servers:
   - url: http://127.0.0.1:5000
@@ -13,11 +13,10 @@ tags:
     description: Operations with flight
   - name: Booking
     description: Operations with booking
-#  - name: Manager
-#    description: Operations with manager
   - name: Boarding check
     description: Operations with bording check
-    
+
+
 
     
 paths:
@@ -42,16 +41,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
         '409':
-          description: The user already exists
+          $ref: '#/components/responses/IntegrityError'
         '400':
-          description: Invalid input data
+          $ref: '#/components/responses/ValidationError'
+
 
   /user/login:
     post:
       tags:
         - User
-#      security:
-#        - basicAuth: []
+      security:
+        - basicAuth_user: []
+        - basicAuth_mgr: []
       summary: Log user into the system
       description: Create a new session for an existing user
       responses:
@@ -63,17 +64,15 @@ paths:
                 $ref: '#/components/schemas/User'
 
         '401':
-          description: User not authenticated
+          $ref: '#/components/responses/WrongCredentialsError'
           
   /user/{id}:
     get:
       tags:
         - User
       security:
-        - cookieAuth_user: []
-        - cookieAuth_flight_mgr: []
-#        - cookieAuth_checkin_mgr: []
-#        - cookieAuth_security_mgr: []
+        - basicAuth_user: []
+        - basicAuth_mgr: []
       summary: Get user info
       description: Get all info about an existing user by id
       parameters:
@@ -92,12 +91,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
         '404':
-          description: Invalid user id, user not found
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
+
     put:
       tags:
         - User
       security:
-        - cookieAuth_user: []
+        - basicAuth_user: []
       summary: Update an existing user
       description: Update personal information by id
       parameters:
@@ -122,91 +126,48 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
         '404':
-          description: Invalid user id, user not found
+          $ref: '#/components/responses/NotFoundError'
         '409':
-          description: The user already exists
+          $ref: '#/components/responses/IntegrityError'
         '400':
-          description: Invalid input data
-#  /user/logout:
-#    delete:
-#      tags:
-#        - User
-#      security:
-#        - cookieAuth_user: []
-#      summary: Log user out of the system
-#      description: End session for an existing user
-#      responses:
-#        '200':
-#          description: Session successfully ended
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
 
+    delete:
+      tags:
+        - User
+      security:
+        - basicAuth_user: []
+        - basicAuth_mgr: []
+      summary: Delete an existing user
+      description: Delete an existing user by id
+      parameters:
+        - name: id
+          in: path
+          description: id of user to be deleted
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: The user was successfully deleted
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
 
-#  /manager/{id}:
-#    get:
-#      tags:
-#        - Manager
-#      security:
-#        - cookieAuth_flight_mgr: []
-#        - cookieAuth_checkin_mgr: []
-#        - cookieAuth_security_mgr: []
-#      summary: Get details of manager
-#      description: Get all info about an existing manager by id
-#      parameters:
-#        - name: id
-#          in: path
-#          description: id of manager to be returned
-#          required: true
-#          schema:
-#            type: integer
-#            example: 1
-#      responses:
-#        '200':
-#          description: Manager details were successfully returned
-#          content:
-#            application/json:
-#              schema:
-#                $ref: '#/components/schemas/Manager'
-#        '404':
-#          description: Invalid manager id, user not found
-#
-#  /manager/login:
-#    post:
-#      tags:
-#        - Manager
-#      security:
-#        - basicAuth: []
-#      summary: Log manager into the system
-#      description: Create a new session for an existing manager
-#      responses:
-#        '200':
-#          description: Session successfully created
-#          content:
-#            application/json:
-#              schema:
-#                $ref: '#/components/schemas/Manager'
-#        '401':
-#          description: Manager not authenticated
-#
-#  /manager/logout:
-#    delete:
-#      tags:
-#        - Manager
-#      security:
-#        - cookieAuth_flight_mgr: []
-#        - cookieAuth_checkin_mgr: []
-#        - cookieAuth_security_mgr: []
-#      summary: Log manager out of the system
-#      description: End session for an existing manager
-#      responses:
-#        '200':
-#          description: Session successfully ended
-    
   /baggage:
     post:
       tags:
         - Baggage
       security:
-#        - cookieAuth_checkin_mgr: []
-        - cookieAuth_flight_mgr: []
+        -  basicAuth_mgr: []
       summary: Create baggage
       description: Add baggage
       requestBody:
@@ -224,18 +185,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Baggage'
         '400':
-          description: Invalid input data
+          $ref: '#/components/responses/ValidationError'
         '409':
-          description: There is no booking with such id
+          $ref: '#/components/responses/IntegrityError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
 
   /baggage/{id}:
     get:
       tags:
         - Baggage
       security:
-#        - cookieAuth_checkin_mgr: []
-#        - cookieAuth_security_mgr: []
-         - cookieAuth_flight_mgr: []
+         - basicAuth_mgr: []
       summary: Get baggage info
       description: Get all info about an existing baggage by id
       parameters:
@@ -254,14 +217,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Baggage'
         '404':
-          description: Invalid baggage id, baggage not found
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
           
   /booking:
     post:
       tags:
         - Booking
       security:
-        - cookieAuth_user: []
+        - basicAuth_user: []
       summary: Create new booking
       description: Create booking 
       requestBody:
@@ -279,16 +246,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Booking'
         '400':
-          description: Invalid input data
+          $ref: '#/components/responses/ValidationError'
         '409':
-          description: There is no client or flight with such id
+          $ref: '#/components/responses/IntegrityError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
           
   /booking/{id}:
     put:
       tags:
         - Booking
       security:
-        - cookieAuth_user: []
+        - basicAuth_user: []
       summary: Update an existing booking
       description: Update booking information by id
       parameters:
@@ -313,14 +284,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Booking'
         '404':
-          description: Invalid booking id, booking not found
+          $ref: '#/components/responses/NotFoundError'
         '400':
-          description: Invalid input data
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
+        '409':
+          $ref: '#/components/responses/IntegrityError'
     delete:
       tags:
         - Booking
       security:
-        - cookieAuth_user: []
+        - basicAuth_user: []
       summary: Delete an existing booking
       description: Delete an existing booking by id
       parameters:
@@ -335,17 +312,20 @@ paths:
         '200':
           description: The booking was successfully deleted
         '404':
-          description: Invalid booking id, booking not found
+          $ref: '#/components/responses/NotFoundError'
         '409':
-          description: Cannot delete booking, the baggage or boarding check already exists
+          $ref: '#/components/responses/IntegrityError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
     get:
       tags:
         - Booking
       security:
-        - cookieAuth_user: []
-        - cookieAuth_flight_mgr: []
-#        - cookieAuth_checkin_mgr: []
-#        - cookieAuth_security_mgr: []
+        - basicAuth_user: []
+        - basicAuth_mgr: []
+
       summary: Get details of booking
       description: Get all info about an existing booking by id
       parameters:
@@ -364,33 +344,38 @@ paths:
               schema:
                 $ref: '#/components/schemas/Booking'
         '404':
-          description: Invalid booking id, booking is not found          
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
 
   /boarding-check:
     get:
       tags:
         - Boarding check
       security:
-        - cookieAuth_flight_mgr: []
-#        - cookieAuth_checkin_mgr: []
-#        - cookieAuth_security_mgr: []
-      summary: Get all bookings
-      description: Get the list of all bookings and their details
+        - basicAuth_mgr: []
+      summary: Get all boarding checks
+      description: Get the list of all boarding checks and their details
       responses:
         '200':
-          description: List of all bookings
+          description: List of all boarding checks
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Boarding_check'
+                  $ref: '#/components/schemas/BoardingCheck'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
     post:
       tags:
         - Boarding check
       security:
-#        - cookieAuth_checkin_mgr: []
-        - cookieAuth_security_mgr: []
+        - basicAuth_mgr: []
       summary: Add boarding check
       description: Add new boarding check 
       requestBody:
@@ -398,7 +383,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Boarding_check'
+              $ref: '#/components/schemas/BoardingCheck'
         required: true
       responses:
         '201':
@@ -406,20 +391,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Boarding_check'
+                $ref: '#/components/schemas/BoardingCheck'
         '400':
-          description: Invalid input data
+          $ref: '#/components/responses/ValidationError'
         '409':
-          description: There is no booking or manager with corresponding id
+          $ref: '#/components/responses/IntegrityError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
           
   /boarding-check/{id}:
     get:
       tags:
         - Boarding check
       security:
-        - cookieAuth_flight_mgr: []
-#        - cookieAuth_checkin_mgr: []
-#        - cookieAuth_security_mgr: []
+        - basicAuth_mgr: []
       summary: Get details of boarding
       description: Get all info about an existing boarding by id
       parameters:
@@ -436,9 +423,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Boarding_check'
+                $ref: '#/components/schemas/BoardingCheck'
         '404':
-          description: Invalid boarding id, boarding not found          
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
 
   /flight:
     get:
@@ -454,10 +445,75 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Flight' 
+                  $ref: '#/components/schemas/Flight'
+
+    post:
+      tags:
+        - Flight
+      security:
+        - basicAuth_mgr: []
+      summary: Create flight
+      description: Create new flight
+      requestBody:
+        description: New flight
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Flight'
+        required: true
+      responses:
+        '201':
+          description: New flight was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
              
                   
   /flight/{id}:
+    put:
+      tags:
+        - Flight
+      security:
+        - basicAuth_mgr: [ ]
+      summary: Update an existing flight
+      description: Update an existing flight by id
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to be updated
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: New flight data
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Flight  was successfully updated
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
+
     get:
       tags:
         - Flight
@@ -479,7 +535,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Flight'
         '404':
-          description: Invalid flight id, flight not found   
+          $ref: '#/components/responses/NotFoundError'
           
   /flight/{id}/public-status:
     get:
@@ -501,18 +557,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 1
+                $ref: '#/components/schemas/Public_status'
         '404':
-          description: Invalid flight id, flight not found   
+          $ref: '#/components/responses/NotFoundError'
+
     put:
       tags:
         - Flight
       security:
-        - cookieAuth_flight_mgr: []
+        - basicAuth_mgr: []
       summary: Update status of flight
       description: The progress of  updating public status
       parameters:
@@ -528,27 +581,27 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: integer
-                  example: 1
+              $ref: '#/components/schemas/Public_status'
       responses:
         '200':
           description: Flight status  was successfully updated
         '404':
-          description: Invalid Flight id, Flight not found
+          $ref: '#/components/responses/NotFoundError'
         '400':
-          description: Invalid input data          
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
           
   /flight/{id}/user:
     get:
       tags:
         - Flight
       security:
-        - cookieAuth_flight_mgr: []
-      summary: Get users from flight
-      description: Get all users from flight
+        - basicAuth_mgr: []
+      summary: Get all users who booked for  flight
+      description: Get all users who booked for  flight
       parameters:
         - name: id
           in: path
@@ -567,27 +620,102 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
         '404':
-          description: Invalid flight id, flight not found   
-              
-  /flight/{id}/baggage:
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
+
+  /flight/{id}/boarded-user:
     get:
       tags:
         - Flight
       security:
-        - cookieAuth_flight_mgr: []
-      summary: Get baggages from flight
-      description: Get all baggages from flight
+        - basicAuth_mgr: []
+      summary: Get only boarded users from flight
+      description: Get only boarded users from flight
       parameters:
         - name: id
           in: path
-          description: id of flight to get all baggages
+          description: id of flight to get all boarded  users
           required: true
           schema:
             type: integer
             example: 1
       responses:
         '200':
-          description: List of all flight's baggages
+          description: List of all flight's boarded users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
+
+  /flight/{id}/report:
+    get:
+      tags:
+        - Flight
+      security:
+        - basicAuth_mgr: []
+      summary: Get report for flight
+      description: Get info about passengers and baggage for flight by id
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to be reported
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Report was successfully returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flight_number:
+                    type: integer
+                    example: 1
+                  total clients who boarded:
+                    type: integer
+                    example: 30
+                  total clients who booked:
+                    type: integer
+                    example: 50
+                  total baggage count:
+                    type: integer
+                    example: 35
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /flight/{id}/baggage:
+    get:
+      tags:
+        - Flight
+      security:
+        - basicAuth_mgr: []
+      summary: Get all  baggage for flight
+      description: Get all baggage for flight
+      parameters:
+        - name: id
+          in: path
+          description: id of flight to get all baggage
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: List of all flight's baggage
           content:
             application/json:
               schema:
@@ -595,10 +723,26 @@ paths:
                 items:
                   $ref: '#/components/schemas/Baggage'
         '404':
-          description: Invalid flight id, flight not found                             
-          
-          
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/WrongCredentialsError'
+        '403':
+          $ref: '#/components/responses/AccessDeniedError'
+
+
 components:
+  responses:
+    AccessDeniedError:
+      description: Access denied
+    ValidationError:
+      description: Invalid input data
+    IntegrityError:
+      description: Violation of integrity
+    NotFoundError:
+      description: Resource not found
+    WrongCredentialsError:
+      description: Wrong email or password
+
   schemas:
     User:
       type: object
@@ -623,7 +767,7 @@ components:
           example: 2017-10-11
         passport_number:
           type: string
-          example: 136544
+          example: RK6544
         email:
           type: string
           example: m.anderson@gmail.com
@@ -632,32 +776,9 @@ components:
           type: string
           format: password 
           example: dvknmwpkd254v
-    
-    Manager:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          readOnly: true
-          example: 13
-        name:
-          type: string
-          example: Mary
-        surname:
-          type: string
-          example: Lvk
-        email:
-          type: string
-          example: m.anderson@gmail.com
-        password:
-          type: string
-          format: password
-          example: Uoihasohao5236
         role:
-          type: integer
-          format: date
-          example: 1
+          type: string
+          example: client
 
     Flight:
       type: object
@@ -670,7 +791,7 @@ components:
         number:
           type: string
           example: LH5563
-        depature_city:
+        departure_city:
           type: string
           example: Lviv
         arrival_city:
@@ -687,7 +808,7 @@ components:
         status:
           type: integer
           format: date
-          example: 1    
+          example: 0
     
     Booking:
       type: object
@@ -707,7 +828,7 @@ components:
         flight_id:
           type: integer
           example: 1
-        user_id:
+        client_id:
           type: integer
           example: 1
     
@@ -728,7 +849,7 @@ components:
           format: int64
           example: 12
           
-    Boarding_check:
+    BoardingCheck:
       type: object
       properties:
         id:
@@ -741,7 +862,7 @@ components:
           example: 1          
         result:
           type: integer
-          example: 2            
+          example: 1
         manager_id:
           type: integer
           example: 1
@@ -749,44 +870,22 @@ components:
           type: integer
           example: 1
 
+    Public_status:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 1
 
   securitySchemes:
-  
-    basicAuth:
-      type: http
-      scheme: basic
-      
-#    cookieAuth_checkin_mgr:
-#      description: Client authentication
-#      type: apiKey
-#      in: cookie
-#      name: JSESSIONID
-#    cookieAuth_security_mgr:
-#      description: Manager authentication
-#      type: apiKey
-#      in: cookie
-#      name: JSESSIONID
-    cookieAuth_flight_mgr:
-      description: Manager authentication
-      type: apiKey
-      in: cookie
-      name: JSESSIONID
-    cookieAuth_user:
-      description: Manager authentication
-      type: apiKey
-      in: cookie
-      name: JSESSIONID
+      basicAuth_mgr:
+        description: Manager authentication
+        type: http
+        scheme: basic
 
-#  securitySchemes:
-#    manager_auth:
-#      type: oauth2
-#      flows:
-#        implicit:
-#          authorizationUrl: https://airport/oauth/authorize
-#          scopes:
-#            write: write or update items for flight, baggage, booking, boarding_check
-#            read: read details about passengers
-#   api_key:
-#    type: apiKey
-#    name: api_key
-#    in: header
+      basicAuth_user:
+        description: User authentication
+        type: http
+        scheme: basic
+
+
