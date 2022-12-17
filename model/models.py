@@ -1,8 +1,8 @@
 from init import db
 
 
-class Client(db.Model):
-    __tablename__ = 'client'
+class User(db.Model):
+    __tablename__ = 'user_table'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
@@ -40,7 +40,7 @@ class Booking(db.Model):
     reservation_time = db.Column(db.DateTime(timezone=True))
     baggage_count = db.Column(db.Integer, nullable=False)
     flight_id = db.Column(db.Integer, db.ForeignKey('flight.id'))
-    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user_table.id'))
 
 
 class BoardingCheck(db.Model):
@@ -49,7 +49,7 @@ class BoardingCheck(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer, nullable=False)
     result = db.Column(db.Integer, nullable=False)
-    manager_id = db.Column(db.Integer, db.ForeignKey('client.id'))
+    manager_id = db.Column(db.Integer, db.ForeignKey('user_table.id'))
     booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'))
 
     def as_dict(self):

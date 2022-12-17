@@ -1,6 +1,6 @@
 # System requirements
 
-According to my variant the project uses
+The project uses
 - Python 3.8.x
 - venv as a virtual environment manager 
 - postgresql database
@@ -13,9 +13,9 @@ According to my variant the project uses
       brew install pyenv
       ```
    2.  Then use
-        ```
-        pyenv install 3.8.13
-        ```
+      ```
+      pyenv install 3.8.13
+      ```
  
 2. Create virtual environment 
     ```
@@ -65,64 +65,5 @@ database folder
 
 
 
-
-
-# pp_airport
-
-Написати сервіс для підтримки процесу реєстрації пасажирів та багажу в аеропорті. Є 4 типи користувачів : пасажир 
- (role_passenger), checkin менеджер (role_security_mgr), security менеджер (role_security_mgr), та менеджер рейсу 
- (role_flight_mgr). User має можливість купування білету на рейс(Flight) шляхом створення сутності Booking а також оновлення 
- даних у Booking. Checkin менеджер проводить реєстрацію пасажира та Baggage(шляхом створення сутності Baggage) на рейс, security менеджер перевіряє 
- пасажірів на пронесення на борт заборонених речей; менеджер рейсу відповідає за відкриття/закриття boarding gate,
- перевіряє, чи всі пасажири здійснили посадку та може оновлювати офіційний статус рейсу(посадка, в повітрі, висадка). Результатом роботи системи є звіт про наповненість рейсу пасажирами та деталі про кожного пасажира(User) та його Baggage. 
-
-Ролі, які підтримує система для авторизації :
-## Roles:
-- role_checkin_mgr
-- role_security_mgr
-- role_flight_mgr
-- role_user
-- role_all
-
-===============
-## Сустність:
-- операція над нею // роль користувача, який можк викнувати операцію
-
-## User
-- add // role_all
-- login // role_user
-- logout // role_user
-- update // role_user
-- getDetails // role_user, role_checkin_mgr, role_security_mgr, role_flight_mgr
-
-## Baggage
-- add // role_checkin_mgr
-- getDetails // role_checkin_mgr, role_security_mgr
-
-## Flight
-- getAll // role_all
-- getDetails // role_all
-- getPublicStatus // role_all
-- setPublicStatus // role_flight_mgr
-- openGate // role_flight_mgr
-- closeGate // role_flight_mgr
-- getAllUsersForFlight // role_flight_mgr
-- getAllBaggageForFlight // role_flight_mgr
-
-## Booking
-- add // role_user
-- update // role_user
-- getDetails // role_user, role_checkin_mgr, role_security_mgr, role_flight_mgr
-- getAllBoardingChecks // role_checkin_mgr, role_security_mgr, role_flight_mgr
-- delete // role_user
-
-## Manager
-- login // role_checkin_mgr, role_security_mgr, role_flight_mgr
-- logout // role_checkin_mgr, role_security_mgr, role_flight_mgr
-- getDetails // role_checkin_mgr, role_security_mgr, role_flight_mgr
-
-## Boarding check
-- add // role_checkin_mgr, role_security_mgr
-- getDetails // role_checkin_mgr, role_security_mgr, role_flight_mgr
 
 

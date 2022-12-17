@@ -16,7 +16,7 @@ auth_basic = HTTPBasicAuth()
 
 @auth_basic.verify_password
 def verify_password(email, password):
-    user_to_verify = Client.query.filter_by(email=email).first()
+    user_to_verify = User.query.filter_by(email=email).first()
 
     if user_to_verify is None:
         return None
@@ -64,33 +64,33 @@ def get_user_roles(user):
 
 @app.route('/user', methods=['POST'])
 @error_handler
-def create_client():
-    client_data = ClientSchema().load(request.json)
-    client = create_entity(Client, **client_data)
-    return jsonify(ClientSchema().dump(client)), 201
+def create_user():
+    user_data = UserSchema().load(request.json)
+    user = create_entity(User, **user_data)
+    return jsonify(UserSchema().dump(user)), 201
 
 
 @app.route('/user/<id>', methods=['PUT'])
 @error_handler
 @auth_basic.login_required(role=['client', 'manager'])
-def update_client(id):
+def update_user(id):
     current_user = auth_basic.current_user()
     role = current_user.role
     if role == 'client' and current_user.id != int(id):
         return "Access denied", 403
-    client_data = ClientToUpdateSchema().load(request.json)
-    client = Client.query.filter_by(id=id).first()
-    if client is None:
-        return "Client not found", 404
-    update_entity(client, **client_data)
-    return jsonify(ClientToUpdateSchema().dump(client)), 200
+    user_data = UserToUpdateSchema().load(request.json)
+    user = User.query.filter_by(id=id).first()
+    if user is None:
+        return "User not found", 404
+    update_entity(user, **user_data)
+    return jsonify(UserToUpdateSchema().dump(user)), 200
 
 
 @app.route('/user/login', methods=['POST'])
 @error_handler
 @auth_basic.login_required(role=['client', 'manager'])
 def login_user():
-    return jsonify(ClientSchema().dump(auth_basic.current_user())), 200
+    return jsonify(UserSchema().dump(auth_basic.current_user())), 200
 
 
 @app.route('/user/<id>', methods=['GET'])
@@ -101,11 +101,11 @@ def get_user(id):
     role = current_user.role
     if role == 'client' and current_user.id != int(id):
         return "Access denied", 403
-    client = Client.query.filter_by(id=id).first()
-    if client is None:
+    user = User.query.filter_by(id=id).first()
+    if user is None:
         return "User not found", 404
 
-    return jsonify(ClientSchema().dump(client)), 200
+    return jsonify(UserSchema().dump(user)), 200
 
 
 @app.route('/user/<id>', methods=['DELETE'])
@@ -116,10 +116,10 @@ def delete_user(id):
     role = current_user.role
     if role == 'client' and current_user.id != int(id):
         return "Access denied", 403
-    user_to_delete = Client.query.filter_by(id=id).first()
+    user_to_delete = User.query.filter_by(id=id).first()
     if user_to_delete is None:
         return "User not found", 404
-    bookings_to_delete = Booking.query.filter_by(client_id=id).all()
+    bookings_to_delete = Booking.query.filter_by(user_id=id).all()
     if bookings_to_delete != []:
         for booking in bookings_to_delete:
             baggage_to_delete = Baggage.query\
@@ -168,12 +168,12 @@ def get_baggage(id):
 def create_booking():
     current_user = auth_basic.current_user()
     booking_data = BookingSchema().load(request.json)
-    client_id = booking_data['client_id']
+    user_id = booking_data['user_id']
     flight_id = booking_data['flight_id']
-    client = Client.query.filter_by(id=client_id).first()
-    if client is None:
-        return "There is no client with such id", 409
-    if client.id != current_user.id:
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return "There is no user with such id", 409
+    if user.id != current_user.id:
         return "Access denied", 403
     flight = Flight.query.filter_by(id=flight_id).first()
 
@@ -189,11 +189,11 @@ def create_booking():
 def update_booking(id):
     current_user = auth_basic.current_user()
     booking_data = BookingToUpdateSchema().load(request.json)
-    client_id = booking_data['client_id']
+    user_id = booking_data['user_id']
     booking = Booking.query.filter_by(id=id).first()
     if booking is None:
         return "Booking not found", 404
-    if current_user.id != client_id or booking.client_id != current_user.id:
+    if current_user.id != user_id or booking.user_id != current_user.id:
         return "Access denied", 403
     update_entity(booking, **booking_data)
     return jsonify(BookingToUpdateSchema().dump(booking)), 200
@@ -221,9 +221,9 @@ def delete_booking(id):
     booking = Booking.query.filter_by(id=id).first()
     if booking is None:
         return "Booking not found", 404
-    client_id = booking.client_id
+    user_id = booking.user_id
     role = current_user.role
-    if role == 'client' and current_user.id != client_id:
+    if role == 'client' and current_user.id != user_id:
         return "Access denied", 403
 
     baggage = Baggage.query.filter_by(booking_id=id).first()
@@ -302,11 +302,11 @@ def get_users_for_flight(id):
     if flight is None:
         return "Flight not found", 404
     bookings = Booking.query.filter_by(flight_id=id).all()
-    clients = []
+    users = []
     for booking in bookings:
-        client = Client.query.filter_by(id=booking.client_id).first()
-        clients.append(client)
-    return json.dumps([p.as_dict() for p in clients], indent=4,
+        user = User.query.filter_by(id=booking.user_id).first()
+        users.append(user)
+    return json.dumps([p.as_dict() for p in users], indent=4,
                       sort_keys=True, default=str), 200
 
 
@@ -318,7 +318,7 @@ def get_boarded_users_for_flight(id):
     if flight is None:
         return "Flight not found", 404
     bookings = Booking.query.filter_by(flight_id=id).all()
-    clients = []
+    users = []
     for booking in bookings:
         boarding_checks = BoardingCheck.query.filter_by(booking_id=booking.id)\
             .all()
@@ -328,9 +328,9 @@ def get_boarded_users_for_flight(id):
                 if boarding_check.result == 0:
                     boarded = False
             if boarded:
-                client = Client.query.filter_by(id=booking.client_id).first()
-                clients.append(client)
-    return json.dumps([p.as_dict() for p in clients], indent=4,
+                user = User.query.filter_by(id=booking.user_id).first()
+                users.append(user)
+    return json.dumps([p.as_dict() for p in users], indent=4,
                       sort_keys=True, default=str), 200
 
 
@@ -367,12 +367,12 @@ def get_report_for_flight(id):
     if flight is None:
         return "Flight not found", 404
     bookings = Booking.query.filter_by(flight_id=id).all()
-    clients = []
+    users = []
     baggage = []
-    clients_booked = []
+    users_booked = []
     for booking in bookings:
-        client = Client.query.filter_by(id=booking.client_id).first()
-        clients_booked.append(client)
+        user = User.query.filter_by(id=booking.user_id).first()
+        users_booked.append(user)
         boarding_checks = BoardingCheck.query.filter_by(booking_id=booking.id)\
             .all()
         if boarding_checks != []:
@@ -381,14 +381,14 @@ def get_report_for_flight(id):
                 if boarding_check.result == 0:
                     boarded = False
             if boarded:
-                client = Client.query.filter_by(id=booking.client_id).first()
-                clients.append(client)
+                user = User.query.filter_by(id=booking.user_id).first()
+                users.append(user)
                 bagg = Baggage.query.filter_by(booking_id=booking.id).all()
                 if bagg != []:
                     baggage.extend(bagg)
     return {"flight number : ": flight.number,
-             "total clients who booked : ": len(clients_booked),
-             "total clients who boarded : ": len(clients),
+             "total clients who booked : ": len(users_booked),
+             "total clients who boarded : ": len(users),
              "total baggage count : ": len(baggage)}
 
 
@@ -400,7 +400,7 @@ def create_boarding_check():
     boarding_check_data = BoardingCheckSchema().load(request.json)
     manager_id = boarding_check_data['manager_id']
     booking_id = boarding_check_data['booking_id']
-    manager = Client.query.filter_by(id=manager_id).first()
+    manager = User.query.filter_by(id=manager_id).first()
     booking = Booking.query.filter_by(id=booking_id).first()
     if booking is None:
         return "There is no booking with corresponding id", 409
